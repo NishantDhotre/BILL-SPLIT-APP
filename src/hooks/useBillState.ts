@@ -84,6 +84,7 @@ export const useBillState = () => {
 
     return {
         bill,
+        setBill,
         actions: {
             addParticipant,
             removeParticipant,

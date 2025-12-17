@@ -1,4 +1,4 @@
-import type { BillState, Action, Item } from '../types';
+import type { BillState, Action } from '../types';
 
 /**
  * Applies a list of actions to the bill state.
@@ -41,7 +41,7 @@ export function dispatchActions(state: BillState, actions: Action[]): BillState 
             }
 
             case 'REMOVE_PARTICIPANT': {
-                const pid = findParticipantId(action.id); // action.id might be name or id
+                const pid = findParticipantId(action.id);
                 if (pid) {
                     newState = {
                         ...newState,
@@ -77,19 +77,7 @@ export function dispatchActions(state: BillState, actions: Action[]): BillState 
                 if (itemIndex !== -1) {
                     const item = newState.items[itemIndex];
                     if (item.splitMode === 'EQUAL') {
-                        const newConsumption = { ...item.consumption };
-
                         // For EQUAL, action.participants list are the ones to be checked.
-                        // Assumption: This action sets the specific participants to TRUE.
-                        // Does it clear others? "SET_CHECKED" implies setting state.
-                        // Usually LLM says "Shared by Alice and Bob".
-                        // So we should probably set only those to true? Or reset others?
-                        // Let's assume authoritative set for now, or just set to true.
-                        // But if LLM says "Alice and Bob", it usually implies *only* them.
-                        // Let's interpret as: Set these to true, leave undefined/others?
-                        // Or better: clear and set. "shared by Alice and Bob" -> logic is exclusive.
-
-                        // Let's clear for safety if the list is provided.
                         const freshConsumption: Record<string, boolean> = {};
 
                         action.participants.forEach(pName => {

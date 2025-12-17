@@ -2,9 +2,14 @@ import React from 'react';
 import { useBillState } from '../hooks/useBillState';
 import { ParticipantManagement } from './ParticipantManagement';
 import { BillTable } from './BillTable';
+import { MOCK_BILL } from '../utils/mockBill';
 
 export const Dashboard: React.FC = () => {
-    const { bill, actions, splitResults } = useBillState();
+    const { bill, actions, splitResults, setBill } = useBillState();
+
+    const loadMockBill = () => {
+        setBill(MOCK_BILL);
+    };
 
     const totalBillAmount = bill.items.reduce((sum, item) => sum + item.price, 0);
 
@@ -31,12 +36,20 @@ export const Dashboard: React.FC = () => {
                 <div className="space-y-4">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
-                        <button
-                            onClick={actions.addItem}
-                            className="px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30"
-                        >
-                            + Add Item
-                        </button>
+                        <div className="flex gap-2">
+                            <button
+                                onClick={loadMockBill}
+                                className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"
+                            >
+                                📥 Load Mock Bill
+                            </button>
+                            <button
+                                onClick={actions.addItem}
+                                className="px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30"
+                            >
+                                + Add Item
+                            </button>
+                        </div>
                     </div>
 
                     <BillTable
