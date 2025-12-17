@@ -1,11 +1,22 @@
 import React from 'react';
-import { useBillState } from '../hooks/useBillState';
+import { useBillStore } from '../store/useBillStore';
 import { ParticipantManagement } from './ParticipantManagement';
 import { BillTable } from './BillTable';
+import { UploadBill } from './UploadBill';
 import { MOCK_BILL } from '../utils/mockBill';
 
 export const Dashboard: React.FC = () => {
-    const { bill, actions, splitResults, setBill } = useBillState();
+    const {
+        bill,
+        splitResults,
+        isValid,
+        setBill,
+        addParticipant,
+        removeParticipant,
+        addItem,
+        updateItem,
+        deleteItem
+    } = useBillStore();
 
     const loadMockBill = () => {
         setBill(MOCK_BILL);
@@ -25,11 +36,27 @@ export const Dashboard: React.FC = () => {
                     <p className="text-slate-500 font-medium">Precision splitting for precision eating.</p>
                 </div>
 
+                {/* Validation Warning */}
+                {!isValid && (
+                    <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-md shadow-sm">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <span className="text-red-500">⚠️</span>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-red-700">
+                                    Some items have invalid split configurations. Please check the rows highlighted in red.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
                 {/* Participant Management */}
                 <ParticipantManagement
                     participants={bill.participants}
-                    onAddParticipant={actions.addParticipant}
-                    onRemoveParticipant={actions.removeParticipant}
+                    onAddParticipant={addParticipant}
+                    onRemoveParticipant={removeParticipant}
                 />
 
                 {/* Bill Table */}
@@ -37,6 +64,7 @@ export const Dashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
                         <div className="flex gap-2">
+                            <UploadBill />
                             <button
                                 onClick={loadMockBill}
                                 className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"
@@ -44,7 +72,7 @@ export const Dashboard: React.FC = () => {
                                 📥 Load Mock Bill
                             </button>
                             <button
-                                onClick={actions.addItem}
+                                onClick={addItem}
                                 className="px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30"
                             >
                                 + Add Item
@@ -55,8 +83,8 @@ export const Dashboard: React.FC = () => {
                     <BillTable
                         items={bill.items}
                         participants={bill.participants}
-                        onUpdateItem={actions.updateItem}
-                        onDeleteItem={actions.deleteItem}
+                        onUpdateItem={updateItem}
+                        onDeleteItem={deleteItem}
                     />
                 </div>
 
@@ -70,7 +98,7 @@ export const Dashboard: React.FC = () => {
                     </div>
 
                     {bill.participants.map(p => (
-                        <div key={p.id} className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center justify-between">
+                        <div key={p.id} className={`bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center justify-between ${!isValid ? 'opacity-50' : ''}`}>
                             <div>
                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1">
                                     {p.name}
