@@ -9,6 +9,7 @@ export type Item = {
     id: string;
     name: string;
     price: number;
+    quantity: number;
     splitMode: SplitMode;
     // consumption maps participantId to checked status (boolean) or quantity (number)
     consumption: {
@@ -27,4 +28,7 @@ export type Action =
 export type BillState = {
     participants: Participant[];
     items: Item[];
+    discount: number; // Global discount amount
+    tax: number; // Global tax/extra charges amount
+    billName?: string; // e.g. Restaurant Name
 };

@@ -3,6 +3,8 @@ import type { Item } from '../types';
 
 export interface ParsedBill {
     items: Omit<Item, 'id' | 'consumption'>[];
+    tax?: number;
+    billName?: string;
 }
 
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -39,37 +41,59 @@ export const uploadBillService = async (file: File): Promise<ParsedBill> => {
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
         const prompt = `
-      Analyze this bill image and extract all line items.
-      Return ONLY a valid JSON object with a single key "items".
+      Analyze this bill image deeply. Extract all line items and total tax.
+      Return ONLY a valid JSON object with keys "items" and "tax".
       
-      "items" should be an array of objects. NOT nested. 
-      For each item, strictly follow these rules:
+      "items": Array of objects.
+      "tax": Number. (Sum of CGST, SGST, Service Charge, VAT, etc. NOT the Grand Total).
+
+      **CRITICAL OCR INSTRUCTIONS**:
+      - Read the bill line-by-line carefully.
+      **CRITICAL OCR INSTRUCTIONS**:
+      - **Columnar Layouts**: This bill might have a layout where usage is:
+        Line 1: \`Item Name\`
+        Line 2: \`Quantity   Unit_Price   Total_Price\`
+        *Example*: 
+        \`BUTTER ROTI\`
+        \`8          15.00        120.00\`
+        In this case, \`Name\`="Butter Roti", \`Quantity\`=8, \`Price\`=120.00.
+      
+      - **Multi-line items**: If text seems to continue (e.g., "Paneer Thai Style \n Tuk Tuk"), combine them.
+      - **Quantity**: Explicitly extract quantity. Look for detached numbers near the item name.
+        - If "2 x Naan", quantity is 2.
+        - If the line below the name has \`8  15.00  120.00\`, then Quantity is 8.
+        - Default to 1 if not found.
+      - **Price**: ALWAYS return the *Total Price* for the line item (e.g. 120.00 for the Rotis, not 15.00).
+
+      For items, strictly follow these rules:
 
       1. **name**: 
-         - Simplify the product name to its "common known name". 
-         - Remove adjectives like "Spicy", "Grandma's", "Special", "Crispy" unless necessary for distinction.
-         - Case examples: 
-            - "Truffle Infused Edamame" -> "Edamame"
-            - "Butter Garlic Naan" -> "Butter Naan"
-            - "Paneer Butter Masala Half" -> "Paneer Butter Masala"
+         - Simplify to "common known name". 
+         - **Capture the FULL name**: Do not truncate unique identifiers like "Thai Style Tuk Tuk".
+         - Remove generic adjectives like "Spicy", "special" *unless* it defines the dish.
       
       2. **price**: 
-         - The cost of the item as a number.
+         - The TOTAL cost of the item line as a number.
 
-      3. **splitMode**: 
-         - Determine the best split policy based on the item type:
-         - **"UNIT"**: For items usually consumed individually or by count.
-            - Examples: Roti, Naan, Breads, Beverages (Coke, Beer, Coffee), Cigarettes, individual pieces.
-         - **"EQUAL"**: For items usually shared by the table.
-            - Examples: Curries (Paneer, Chicken), Rice (Jeera Rice, Biryani), Starters/Appetizers (Fries, Tikka), Salads, Desserts.
+      3. **quantity**:
+         - The number of units. Default to 1 if not specified.
+
+      4. **splitMode**: 
+         - **"UNIT"**: Drinks, Breads (Naan/Roti), Cigarettes, Individual pieces.
+         - **"EQUAL"**: Mains (Curries, Rice), Starters, Salads, Desserts.
       
+      5. **billName** (Top Level key):
+         - Identify the Restaurant or Store Name at the top of the receipt. e.g., "PUNJABI AAHAR", "DOMINOS".
+         - Default to "Bill Split" if not visible.
+
       Example output:
       {
+        "billName": "PUNJABI AAHAR",
         "items": [
-          { "name": "Butter Roti", "price": 45, "splitMode": "UNIT" },
-          { "name": "Paneer Masala", "price": 320, "splitMode": "EQUAL" },
-          { "name": "Diet Coke", "price": 60, "splitMode": "UNIT" }
-        ]
+          { "name": "Butter Roti", "price": 90, "quantity": 2, "splitMode": "UNIT" },
+          { "name": "Paneer Thai Style Tuk Tuk", "price": 249, "quantity": 1, "splitMode": "EQUAL" }
+        ],
+        "tax": 50.5
       }
       
       Do not include markdown formatting like \`\`\`json. Just the raw JSON string.

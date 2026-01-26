@@ -14,6 +14,7 @@ export function validateItem(item: Item): boolean {
     if (item.splitMode === 'UNIT') {
         let totalUnits = 0;
         const consumptionValues = Object.values(item.consumption);
+        const maxQuantity = item.quantity || 1; // Default to 1 if undefined
 
         for (const val of consumptionValues) {
             if (typeof val !== 'number') return false; // Should be number for UNIT
@@ -21,7 +22,8 @@ export function validateItem(item: Item): boolean {
             totalUnits += val;
         }
 
-        return totalUnits >= 1;
+        // Must assign at least 1 unit AND not exceed available quantity
+        return totalUnits >= 1 && totalUnits <= maxQuantity;
     }
 
     return false;
@@ -113,6 +115,32 @@ export function calculateBillSplit(bill: BillState): Record<string, number> {
             totals[participantId] += amount;
         });
     });
+
+    // Apply Global Discount
+    const participantCount = bill.participants.length;
+    const discountAmount = bill.discount || 0;
+
+    if (participantCount > 0 && discountAmount > 0) {
+        const discountPerPerson = discountAmount / participantCount;
+        bill.participants.forEach((p) => {
+            if (totals[p.id] !== undefined) {
+                totals[p.id] -= discountPerPerson;
+            }
+        });
+    }
+
+
+
+    // Apply Global Tax
+    const taxAmount = bill.tax || 0;
+    if (participantCount > 0 && taxAmount > 0) {
+        const taxPerPerson = taxAmount / participantCount;
+        bill.participants.forEach((p) => {
+            if (totals[p.id] !== undefined) {
+                totals[p.id] += taxPerPerson;
+            }
+        });
+    }
 
     // Round final totals
     const roundedTotals: Record<string, number> = {};

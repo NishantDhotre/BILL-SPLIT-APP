@@ -9,39 +9,46 @@ export const MOCK_BILL: BillState = {
     ],
     items: [
         {
-            id: 'i1',
-            name: 'Paneer Butter Masala',
-            price: 320,
-            splitMode: 'EQUAL',
+            id: '1',
+            name: 'Butter Roti (x3)',
+            price: 120, // 40 each
+            quantity: 3,
+            splitMode: 'UNIT',
             consumption: {}
         },
         {
-            id: 'i2',
+            id: '2',
+            name: 'Paneer Butter Masala',
+            price: 280,
+            quantity: 1,
+            splitMode: 'EQUAL',
+            consumption: { 'p1': true, 'p2': true, 'p3': true }
+        },
+        {
+            id: '3',
             name: 'Jeera Rice',
             price: 180,
+            quantity: 1,
             splitMode: 'EQUAL',
-            consumption: {}
+            consumption: { 'p1': true, 'p2': true, 'p3': true }
         },
         {
-            id: 'i3',
-            name: 'Butter Roti',
-            price: 45,
+            id: '4',
+            name: 'Coke',
+            price: 60,
+            quantity: 1,
             splitMode: 'UNIT',
-            consumption: {}
+            consumption: { 'p1': 1 }
         },
         {
-            id: 'i4',
-            name: 'Garlic Naan',
-            price: 65,
+            id: '5',
+            name: 'Lime Soda',
+            price: 80,
+            quantity: 1,
             splitMode: 'UNIT',
-            consumption: {}
-        },
-        {
-            id: 'i5',
-            name: 'Masala Papad',
-            price: 50,
-            splitMode: 'EQUAL',
-            consumption: {}
+            consumption: { 'p3': 1 }
         }
-    ]
+    ],
+    discount: 50,
+    tax: 60,
 };

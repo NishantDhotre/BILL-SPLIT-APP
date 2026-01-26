@@ -21,13 +21,19 @@ export const BillTable: React.FC<BillTableProps> = ({
         const newMode = currentMode === 'EQUAL' ? 'UNIT' : 'EQUAL';
 
         // Create new consumption map based on new mode
-        // EQUAL: all false
-        // UNIT: all 0
-        // Spec: "Mode switch clears incompatible inputs"
+        let newConsumption = {};
+
+        if (newMode === 'EQUAL') {
+            // Auto-select ALL participants by default
+            newConsumption = participants.reduce((acc, p) => ({ ...acc, [p.id]: true }), {});
+        } else {
+            // UNIT: Empty/Zero
+            newConsumption = {};
+        }
 
         onUpdateItem(itemId, {
             splitMode: newMode,
-            consumption: {}, // Reset consumption
+            consumption: newConsumption,
         });
     };
 
@@ -54,6 +60,7 @@ export const BillTable: React.FC<BillTableProps> = ({
                     <thead>
                         <tr className="bg-slate-50 border-b border-slate-200">
                             <th className="py-4 px-6 font-semibold text-slate-700 text-sm">Item</th>
+                            <th className="py-4 px-2 font-semibold text-slate-700 text-sm w-16">Qty</th>
                             <th className="py-4 px-6 font-semibold text-slate-700 text-sm w-24">Price</th>
                             <th className="py-4 px-6 font-semibold text-slate-700 text-sm w-32">Mode</th>
                             {participants.map(p => (
@@ -67,6 +74,21 @@ export const BillTable: React.FC<BillTableProps> = ({
                     <tbody className="divide-y divide-slate-100">
                         {items.map(item => {
                             const isValid = validateItem(item);
+                            const currentQty = item.quantity || 1;
+
+                            // Check specific validation failure reason
+                            let errorMsg = '';
+                            if (!isValid) {
+                                if (item.splitMode === 'EQUAL') errorMsg = 'Select ≥ 1';
+                                else {
+                                    // Calculate used units
+                                    const totalUsed = Object.values(item.consumption).reduce((acc: number, val) =>
+                                        acc + (typeof val === 'number' ? val : 0), 0);
+                                    if (totalUsed > currentQty) errorMsg = `Exceeds Qty (${totalUsed}/${currentQty})`;
+                                    else if (totalUsed < 1) errorMsg = 'Assign ≥ 1';
+                                    else errorMsg = 'Invalid';
+                                }
+                            }
 
                             return (
                                 <tr
@@ -82,10 +104,19 @@ export const BillTable: React.FC<BillTableProps> = ({
                                             placeholder="Item name"
                                         />
                                         {!isValid && (
-                                            <div className="text-[10px] text-red-500 font-medium mt-1">
-                                                {item.splitMode === 'EQUAL' ? 'Select at least one' : 'Invalid quantities'}
+                                            <div className="text-[10px] text-red-500 font-bold mt-1">
+                                                {errorMsg}
                                             </div>
                                         )}
+                                    </td>
+                                    <td className="py-3 px-2">
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={item.quantity || 1}
+                                            onChange={(e) => onUpdateItem(item.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                                            className="w-12 bg-transparent text-center font-mono text-sm border-b border-transparent focus:border-indigo-500 outline-none"
+                                        />
                                     </td>
                                     <td className="py-3 px-6">
                                         <div className="flex items-center text-slate-600">
