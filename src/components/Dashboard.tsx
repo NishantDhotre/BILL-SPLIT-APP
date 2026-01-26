@@ -15,7 +15,8 @@ export const Dashboard: React.FC = () => {
         removeParticipant,
         addItem,
         updateItem,
-        deleteItem
+        deleteItem,
+        uploadError
     } = useBillStore();
 
     const loadMockBill = () => {
@@ -46,6 +47,25 @@ export const Dashboard: React.FC = () => {
                             <div className="ml-3">
                                 <p className="text-sm text-red-700">
                                     Some items have invalid split configurations. Please check the rows highlighted in red.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Upload Error Warning */}
+                {uploadError && (
+                    <div className="bg-amber-50 border-l-4 border-amber-500 p-4 rounded-md shadow-sm">
+                        <div className="flex">
+                            <div className="flex-shrink-0">
+                                <span className="text-amber-500">🛑</span>
+                            </div>
+                            <div className="ml-3">
+                                <p className="text-sm text-amber-700 font-bold">
+                                    Upload Failed
+                                </p>
+                                <p className="text-sm text-amber-700">
+                                    {uploadError}
                                 </p>
                             </div>
                         </div>

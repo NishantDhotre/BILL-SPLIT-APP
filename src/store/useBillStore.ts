@@ -15,6 +15,7 @@ interface BillStoreState {
     deleteItem: (itemId: string) => void;
     setBill: (bill: BillState) => void;
     isUploading: boolean;
+    uploadError: string | null;
     uploadBill: (file: File) => Promise<void>;
 }
 
@@ -32,6 +33,10 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     bill: INITIAL_BILL,
     splitResults: calculateBillSplit(INITIAL_BILL),
     isValid: true,
+
+    // Phase 3: Upload Logic Init
+    isUploading: false,
+    uploadError: null,
 
     addParticipant: (name) => {
         set((state) => {
@@ -103,40 +108,41 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     },
 
     // Phase 3: Upload Logic
-    isUploading: false,
     uploadBill: async (file: File) => {
-        set({ isUploading: true });
+        set({ isUploading: true, uploadError: null });
         try {
-            // Dynamic import to avoid circular dependency if service imports types? 
-            // Actually service imports Item type only.
+            // Dynamic import to avoid circular dependency
             const { uploadBillService } = await import('../services/billService');
             const parsedData = await uploadBillService(file);
 
             set((state) => {
-                // Convert parsed items to full Items
                 const newItems: Item[] = parsedData.items.map(p => ({
                     id: `i-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                     name: p.name,
                     price: p.price,
                     splitMode: p.splitMode,
-                    consumption: {} // Reset consumption
+                    consumption: {}
                 }));
-
-                // Merge or Replace? Requirement says "Populate items". Usually replace or append.
-                // Let's Append for now, or maybe replace if empty? 
-                // "Auto-populate dashboard from bill photo" suggests initial state.
-                // Let's Append to existing items to be safe, user can clear if needed.
 
                 const updatedItems = [...state.bill.items, ...newItems];
                 return {
-                    bill: { ...state.bill, items: updatedItems }
+                    bill: { ...state.bill, items: updatedItems },
+                    uploadError: null
                 };
             });
-            // Trigger recalc
-            get().setBill(get().bill); // Recalculate everything
-        } catch (error) {
+            get().setBill(get().bill);
+        } catch (error: any) {
             console.error(error);
-            // Handle error state if needed
+            let msg = error.message || "Failed to analyze bill";
+
+            // Friendly message for Quota Exceeded
+            if (msg.includes("429") || msg.includes("Quota exceeded")) {
+                msg = `⏳ AI Usage Limit Reached (Free Tier). \nDetails: ${msg}`;
+            } else if (msg.includes("404")) {
+                msg = `❌ AI Model Not Found. \nDetails: ${msg}`;
+            }
+
+            set({ uploadError: msg });
         } finally {
             set({ isUploading: false });
         }
