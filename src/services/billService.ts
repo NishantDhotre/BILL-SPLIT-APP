@@ -10,38 +10,7 @@ export interface ParsedBill {
 // NO FALLBACK: User must provide a key via Settings.
 // const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
 
-// Helper to convert File to Base64
-const fileToGenerativePart = async (file: File) => {
-    const base64EncodedDataPromise = new Promise<string>((resolve) => {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-            const result = reader.result as string;
-            // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
-            resolve(result.split(',')[1]);
-        };
-        reader.readAsDataURL(file);
-    });
-
-    return {
-        inlineData: {
-            data: await base64EncodedDataPromise,
-            mimeType: file.type,
-        },
-    };
-};
-
-export const uploadBillService = async (file: File, userApiKey?: string | null): Promise<ParsedBill> => {
-    if (!userApiKey) {
-        console.error("❌ No Gemini API Key provided.");
-        throw new Error("Missing Gemini API Key. Please set it in Settings.");
-    }
-
-    try {
-        const genAI = new GoogleGenerativeAI(userApiKey);
-        // Switching to 2.5 Flash as final attempt to find a model with quota
-        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
-
-        const prompt = `
+export const BILL_ANALYSIS_PROMPT = `
       Analyze this bill image deeply. Extract all line items and total tax.
       Return ONLY a valid JSON object with keys "items" and "tax".
       
@@ -100,11 +69,44 @@ export const uploadBillService = async (file: File, userApiKey?: string | null):
       Do not include markdown formatting like \`\`\`json. Just the raw JSON string.
     `;
 
+// Helper to convert File to Base64
+const fileToGenerativePart = async (file: File) => {
+    const base64EncodedDataPromise = new Promise<string>((resolve) => {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const result = reader.result as string;
+            // Remove data URL prefix (e.g., "data:image/jpeg;base64,")
+            resolve(result.split(',')[1]);
+        };
+        reader.readAsDataURL(file);
+    });
+
+    return {
+        inlineData: {
+            data: await base64EncodedDataPromise,
+            mimeType: file.type,
+        },
+    };
+};
+
+export const uploadBillService = async (file: File, userApiKey?: string | null): Promise<ParsedBill> => {
+    if (!userApiKey) {
+        console.error("❌ No Gemini API Key provided.");
+        throw new Error("Missing Gemini API Key. Please set it in Settings.");
+    }
+
+    try {
+        const genAI = new GoogleGenerativeAI(userApiKey);
+        // Switching to 2.5 Flash as final attempt to find a model with quota
+        const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
+
+
+
         const imagePart = await fileToGenerativePart(file);
 
         // Safety settings could be adjusted here if needed, but defaults are usually fine for receipt text.
 
-        const result = await model.generateContent([prompt, imagePart]);
+        const result = await model.generateContent([BILL_ANALYSIS_PROMPT, imagePart]);
         const response = await result.response;
         const text = response.text();
 

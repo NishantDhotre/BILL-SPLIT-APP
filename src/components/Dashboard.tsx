@@ -3,15 +3,14 @@ import { useBillStore } from '../store/useBillStore';
 import { ParticipantManagement } from './ParticipantManagement';
 import { BillTable } from './BillTable';
 import { UploadBill } from './UploadBill';
-import { MOCK_BILL } from '../utils/mockBill';
 import { captureReceipt, shareImage } from '../utils/shareUtils';
+import { ManualImportModal } from './ManualImportModal';
 
 export const Dashboard: React.FC = () => {
     const {
         bill,
         splitResults,
         isValid,
-        setBill,
         addParticipant,
         removeParticipant,
         addItem,
@@ -26,6 +25,7 @@ export const Dashboard: React.FC = () => {
     } = useBillStore();
 
     const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+    const [isImportOpen, setIsImportOpen] = React.useState(false);
     const [tempKey, setTempKey] = React.useState('');
 
     // Load key into temp state when opening
@@ -48,10 +48,6 @@ export const Dashboard: React.FC = () => {
     };
 
     const [viewingParticipant, setViewingParticipant] = React.useState<string | null>(null);
-
-    const loadMockBill = () => {
-        setBill(MOCK_BILL);
-    };
 
     const subtotal = bill.items.reduce((sum, item) => sum + item.price, 0);
     const taxTotal = bill.tax || 0;
@@ -114,7 +110,7 @@ export const Dashboard: React.FC = () => {
                     <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
                         Bill Splitter Pro
                     </h1>
-                    <p className="text-slate-500 font-medium">Precision splitting for precision eating.</p>
+                    <p className="text-slate-500 font-medium">Split any bill, fairly and effortlessly.</p>
                 </div>
 
                 {/* Validation Warning */}
@@ -166,10 +162,10 @@ export const Dashboard: React.FC = () => {
                         <div className="flex gap-2">
                             <UploadBill onMissingKey={() => setIsSettingsOpen(true)} />
                             <button
-                                onClick={loadMockBill}
+                                onClick={() => setIsImportOpen(true)}
                                 className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"
                             >
-                                📥 Load Mock
+                                📥 Import / Manual
                             </button>
                             <button
                                 onClick={addItem}
@@ -393,6 +389,8 @@ export const Dashboard: React.FC = () => {
                         </div>
                     </div>
                 )}
+
+                <ManualImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
 
             </div>
         </div>

@@ -24,6 +24,9 @@ interface BillStoreState {
     // Phase 13: BYOK
     userApiKey: string | null;
     setUserApiKey: (key: string) => void;
+
+    // Phase 14: Manual Import
+    importBillJSON: (jsonString: string) => void;
 }
 
 const INITIAL_BILL: BillState = {
@@ -208,7 +211,6 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                         tax: (state.bill.tax || 0) + (parsedData.tax || 0),
                         billName: parsedData.billName || state.bill.billName
                     },
-                    uploadError: null
                 };
             });
             get().setBill(get().bill);
@@ -226,6 +228,55 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             set({ uploadError: msg });
         } finally {
             set({ isUploading: false });
+        }
+    },
+
+    // Phase 14: Manual Import Logic
+    importBillJSON: (jsonString: string) => {
+        try {
+            // Basic cleanup (remove markdown if user pasted it)
+            const cleanText = jsonString.replace(/```json/g, '').replace(/```/g, '').trim();
+            const parsedData = JSON.parse(cleanText);
+
+            if (!parsedData.items || !Array.isArray(parsedData.items)) {
+                throw new Error("Invalid Format: Missing 'items' array.");
+            }
+
+            set((state) => {
+                const newItems: Item[] = parsedData.items.map((p: any) => {
+                    const consumption: Record<string, boolean | number> = {};
+
+                    if (p.splitMode === 'EQUAL') {
+                        state.bill.participants.forEach(part => {
+                            consumption[part.id] = true;
+                        });
+                    }
+
+                    return {
+                        id: `i-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                        name: p.name,
+                        price: p.price,
+                        quantity: p.quantity || 1,
+                        splitMode: p.splitMode || 'EQUAL',
+                        consumption
+                    };
+                });
+
+                const updatedItems = [...state.bill.items, ...newItems];
+                return {
+                    bill: {
+                        ...state.bill,
+                        items: updatedItems,
+                        tax: (state.bill.tax || 0) + (parsedData.tax || 0),
+                        billName: parsedData.billName || state.bill.billName
+                    },
+                    uploadError: null // clear any previous errors
+                };
+            });
+            get().setBill(get().bill); // Trigger recalc
+        } catch (error: any) {
+            console.error("Import Failed:", error);
+            throw new Error(`Failed to parse JSON: ${error.message}`);
         }
     }
 }));
