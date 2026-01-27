@@ -29,14 +29,16 @@ const fileToGenerativePart = async (file: File) => {
     };
 };
 
-export const uploadBillService = async (file: File): Promise<ParsedBill> => {
-    if (!API_KEY) {
-        console.error("❌ Gemini API Key is missing! Check .env file.");
-        throw new Error("Missing Gemini API Key in .env file (VITE_GEMINI_API_KEY)");
+export const uploadBillService = async (file: File, userApiKey?: string | null): Promise<ParsedBill> => {
+    const finalApiKey = userApiKey || API_KEY;
+
+    if (!finalApiKey) {
+        console.error("❌ Gemini API Key is missing!");
+        throw new Error("Missing API Key. Please add a Key in Settings or configure .env.");
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(API_KEY);
+        const genAI = new GoogleGenerativeAI(finalApiKey);
         // Switching to 2.5 Flash as final attempt to find a model with quota
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 

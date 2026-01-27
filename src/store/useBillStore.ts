@@ -20,6 +20,10 @@ interface BillStoreState {
     uploadBill: (file: File) => Promise<void>;
     setDiscount: (amount: number) => void;
     setTax: (amount: number) => void; // Phase 5
+
+    // Phase 13: BYOK
+    userApiKey: string | null;
+    setUserApiKey: (key: string) => void;
 }
 
 const INITIAL_BILL: BillState = {
@@ -49,6 +53,17 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     // Phase 3: Upload Logic Init
     isUploading: false,
     uploadError: null,
+
+    // Phase 13: BYOK Init
+    userApiKey: localStorage.getItem('user_gemini_api_key') || null,
+    setUserApiKey: (key: string) => {
+        if (key) {
+            localStorage.setItem('user_gemini_api_key', key);
+        } else {
+            localStorage.removeItem('user_gemini_api_key');
+        }
+        set({ userApiKey: key || null });
+    },
 
     addParticipant: (name) => {
         set((state) => {
@@ -162,7 +177,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
         try {
             // Dynamic import to avoid circular dependency
             const { uploadBillService } = await import('../services/billService');
-            const parsedData = await uploadBillService(file);
+            const parsedData = await uploadBillService(file, get().userApiKey);
 
             set((state) => {
                 const newItems: Item[] = parsedData.items.map(p => {

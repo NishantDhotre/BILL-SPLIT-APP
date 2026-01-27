@@ -20,8 +20,23 @@ export const Dashboard: React.FC = () => {
         uploadError,
         setDiscount,
         setTax,
-        setBillName
+        setBillName,
+        userApiKey,
+        setUserApiKey
     } = useBillStore();
+
+    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+    const [tempKey, setTempKey] = React.useState('');
+
+    // Load key into temp state when opening
+    React.useEffect(() => {
+        if (isSettingsOpen) setTempKey(userApiKey || '');
+    }, [isSettingsOpen, userApiKey]);
+
+    const handleSaveKey = () => {
+        setUserApiKey(tempKey);
+        setIsSettingsOpen(false);
+    };
 
     const [viewingParticipant, setViewingParticipant] = React.useState<string | null>(null);
 
@@ -78,7 +93,15 @@ export const Dashboard: React.FC = () => {
             <div className="max-w-6xl mx-auto space-y-8">
 
                 {/* Header */}
-                <div className="text-center space-y-2">
+                {/* Header */}
+                <div className="relative text-center space-y-2">
+                    <button
+                        onClick={() => setIsSettingsOpen(true)}
+                        className="absolute right-0 top-1 p-2 text-slate-400 hover:text-indigo-600 transition-colors text-xl"
+                        title="Configure API Key"
+                    >
+                        ⚙️Key
+                    </button>
                     <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
                         Bill Splitter Pro
                     </h1>
@@ -313,6 +336,50 @@ export const Dashboard: React.FC = () => {
                                 >
                                     <span>📸</span> Share Receipt
                                 </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {/* Settings Modal */}
+                {isSettingsOpen && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm"
+                        onClick={() => setIsSettingsOpen(false)}>
+                        <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in fade-in zoom-in duration-200 space-y-4" onClick={e => e.stopPropagation()}>
+                            <h2 className="text-xl font-bold text-slate-800">Configure AI Model</h2>
+                            <p className="text-sm text-slate-600">
+                                To use the AI features for free without limits, please provide your own <strong>Gemini API Key</strong>.
+                            </p>
+                            <div className="bg-slate-50 p-4 rounded-lg text-xs text-slate-500 space-y-2">
+                                <p>1. Go to <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" className="text-indigo-600 font-bold underline">Google AI Studio</a>.</p>
+                                <p>2. Create a free API Key.</p>
+                                <p>3. Paste it below.</p>
+                            </div>
+
+                            <input
+                                type="password"
+                                value={tempKey}
+                                onChange={(e) => setTempKey(e.target.value)}
+                                placeholder="Paste API Key here..."
+                                className="w-full px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                            />
+
+                            <div className="flex justify-end gap-3 pt-2">
+                                <button
+                                    onClick={() => setIsSettingsOpen(false)}
+                                    className="px-4 py-2 text-slate-500 font-medium hover:text-slate-700"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveKey}
+                                    className="px-4 py-2 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700"
+                                >
+                                    Save Key
+                                </button>
+                            </div>
+                            <div className="text-[10px] text-slate-400 text-center">
+                                Your key is stored locally in your browser and never sent to our servers.
                             </div>
                         </div>
                     </div>
