@@ -94,23 +94,33 @@ export const Dashboard: React.FC = () => {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-6xl mx-auto space-y-8">
+        <div className="min-h-screen bg-slate-50 py-6 px-3 sm:py-12 sm:px-6 lg:px-8">
+            <div className="max-w-6xl mx-auto space-y-6">
 
                 {/* Header */}
                 {/* Header */}
-                <div className="relative text-center space-y-2">
-                    <button
-                        onClick={() => setIsSettingsOpen(true)}
-                        className="absolute right-0 top-1 p-2 text-slate-400 hover:text-indigo-600 transition-colors text-xl"
-                        title="Configure API Key"
-                    >
-                        ⚙️Key
-                    </button>
-                    <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
-                        Bill Splitter Pro
-                    </h1>
-                    <p className="text-slate-500 font-medium">Split any bill, fairly and effortlessly.</p>
+                <div className="relative flex flex-col space-y-2">
+                    {/* Settings Button: Static Right on Mobile, Absolute Right on Desktop */}
+                    <div className="flex justify-end w-full sm:absolute sm:top-1 sm:right-0 sm:w-auto z-10">
+                        <button
+                            onClick={() => setIsSettingsOpen(true)}
+                            className="flex items-center gap-2 p-2 text-slate-400 hover:text-indigo-600 transition-colors text-sm font-bold bg-slate-50 sm:bg-transparent rounded-xl sm:rounded-none border sm:border-0 border-slate-100"
+                            title="Configure API Key"
+                        >
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.324.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 011.37.49l1.296 2.247a1.125 1.125 0 01-.26 1.431l-1.003.827c-.293.24-.438.613-.431.992a6.759 6.759 0 010 .255c-.007.378.138.75.43.99l1.005.828c.424.35.534.954.26 1.43l-1.298 2.247a1.125 1.125 0 01-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.57 6.57 0 01-.22.128c-.331.183-.581.495-.644.869l-.213 1.28c-.09.543-.56.941-1.11.941h-2.594c-.55 0-1.02-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 01-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 01-1.369-.49l-1.297-2.247a1.125 1.125 0 01.26-1.431l1.004-.827c.292-.24.437-.613.43-.992a6.932 6.932 0 010-.255c.007-.378-.138-.75-.43-.99l-1.004-.828a1.125 1.125 0 01-.26-1.43l1.297-2.247a1.125 1.125 0 011.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.087.22-.128.332-.183.582-.495.644-.869l.214-1.281z" />
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            </svg>
+                            <span className="hidden sm:inline">Configure Key</span>
+                        </button>
+                    </div>
+
+                    <div className="text-center space-y-1 pt-1 sm:pt-0">
+                        <h1 className="text-3xl sm:text-4xl font-extrabold text-slate-800 tracking-tight">
+                            Bill Splitter Pro
+                        </h1>
+                        <p className="text-slate-500 font-medium text-sm sm:text-base">Split any bill, fairly and effortlessly.</p>
+                    </div>
                 </div>
 
                 {/* Validation Warning */}
@@ -156,22 +166,39 @@ export const Dashboard: React.FC = () => {
                 />
 
                 {/* Bill Context & Items */}
-                <div className="space-y-6">
-                    <div className="flex items-center justify-between">
+                <div className="space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
-                        <div className="flex gap-2">
-                            <UploadBill onMissingKey={() => setIsSettingsOpen(true)} />
+                        {/* Action Buttons: 3 Cols on Mobile (Icon Only), Flex on Desktop (Text) */}
+                        <div className="grid grid-cols-3 sm:flex gap-2 w-full sm:w-auto">
+
+                            {/* Upload Button */}
+                            <div className="col-span-1 sm:w-auto">
+                                <UploadBill onMissingKey={() => setIsSettingsOpen(true)} />
+                            </div>
+
+                            {/* Import Button */}
                             <button
                                 onClick={() => setIsImportOpen(true)}
-                                className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"
+                                className="col-span-1 px-4 py-3 sm:py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm flex items-center justify-center gap-2"
+                                title="Import Manual JSON"
                             >
-                                📥 Import / Manual
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                </svg>
+                                <span className="hidden sm:inline">Import</span>
                             </button>
+
+                            {/* Add Item Button */}
                             <button
                                 onClick={addItem}
-                                className="px-4 py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30"
+                                className="col-span-1 px-4 py-3 sm:py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30 flex items-center justify-center gap-2"
+                                title="Add New Item"
                             >
-                                + Add Item
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                                </svg>
+                                <span className="hidden sm:inline">Add Item</span>
                             </button>
                         </div>
                     </div>
@@ -249,9 +276,13 @@ export const Dashboard: React.FC = () => {
                                 console.log('Blob captured:', blob ? 'Yes' : 'No');
                                 if (blob) shareImage(blob, 'bill-summary.png', 'Bill Summary');
                             }}
-                            className="w-full py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-sm"
+                            className="w-full py-3 sm:py-2 bg-slate-100 text-slate-600 font-bold rounded-xl hover:bg-slate-200 transition-colors flex items-center justify-center gap-2 text-sm"
+                            title="Share Summary"
                         >
-                            <span>📸</span> Share Summary
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" />
+                            </svg>
+                            <span className="hidden sm:inline">Share Summary</span>
                         </button>
                     </div>
 
