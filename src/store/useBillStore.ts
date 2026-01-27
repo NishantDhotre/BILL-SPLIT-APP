@@ -55,13 +55,21 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             const id = `p-${Date.now()}`;
             const newParticipants = [...state.bill.participants, { id, name }];
 
-            const newBill = { ...state.bill, participants: newParticipants };
+            // Auto-add new participant to all EQUAL split items
+            const newItems = state.bill.items.map(item => {
+                if (item.splitMode === 'EQUAL') {
+                    return {
+                        ...item,
+                        consumption: { ...item.consumption, [id]: true }
+                    };
+                }
+                return item;
+            });
+
+            const newBill = { ...state.bill, participants: newParticipants, items: newItems };
             return {
                 bill: newBill
             };
-            // Recalculation happens in middleware or distinct set? 
-            // Simplified: We'll recalculate in a subscriber or manually here. 
-            // For now, let's update results immediately.
         });
         get().setBill(get().bill); // Trigger recalc via setBill helper
     },
@@ -82,8 +90,16 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     addItem: () => {
         set((state) => {
             const id = `i-${Date.now()}`;
+            // Auto-select ALL participants by default for new EQUAL items
+            const defaultConsumption = state.bill.participants.reduce((acc, p) => ({ ...acc, [p.id]: true }), {});
+
             const newItem: Item = {
-                id, name: '', price: 0, quantity: 1, splitMode: 'EQUAL', consumption: {}
+                id,
+                name: '',
+                price: 0,
+                quantity: 1,
+                splitMode: 'EQUAL',
+                consumption: defaultConsumption
             };
             return { bill: { ...state.bill, items: [...state.bill.items, newItem] } };
         });

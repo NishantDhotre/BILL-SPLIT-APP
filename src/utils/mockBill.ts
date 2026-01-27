@@ -51,4 +51,5 @@ export const MOCK_BILL: BillState = {
     ],
     discount: 50,
     tax: 60,
+    billName: 'Punjabi Aahar'
 };

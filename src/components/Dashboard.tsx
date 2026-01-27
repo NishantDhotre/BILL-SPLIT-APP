@@ -79,13 +79,9 @@ export const Dashboard: React.FC = () => {
 
                 {/* Header */}
                 <div className="text-center space-y-2">
-                    <input
-                        type="text"
-                        value={bill.billName || 'Bill Splitter Pro'}
-                        onChange={(e) => setBillName(e.target.value)}
-                        className="w-full text-4xl font-extrabold text-slate-800 tracking-tight text-center bg-transparent border-b-2 border-transparent hover:border-slate-200 focus:border-indigo-600 focus:outline-none transition-all"
-                        placeholder="Bill Name"
-                    />
+                    <h1 className="text-4xl font-extrabold text-slate-800 tracking-tight">
+                        Bill Splitter Pro
+                    </h1>
                     <p className="text-slate-500 font-medium">Precision splitting for precision eating.</p>
                 </div>
 
@@ -131,8 +127,8 @@ export const Dashboard: React.FC = () => {
                     onRemoveParticipant={removeParticipant}
                 />
 
-                {/* Bill Table */}
-                <div className="space-y-4">
+                {/* Bill Context & Items */}
+                <div className="space-y-6">
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
                         <div className="flex gap-2">
@@ -141,7 +137,7 @@ export const Dashboard: React.FC = () => {
                                 onClick={loadMockBill}
                                 className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"
                             >
-                                📥 Load Mock Bill
+                                📥 Load Mock
                             </button>
                             <button
                                 onClick={addItem}
@@ -168,7 +164,13 @@ export const Dashboard: React.FC = () => {
 
                         {/* Summary Math */}
                         <div id="summary-card" className="space-y-2 border-b border-slate-100 pb-4 bg-white p-4">
-                            <h2 className="text-xl font-bold text-slate-800 text-center mb-4">{bill.billName || 'Bill Summary'}</h2>
+                            <input
+                                type="text"
+                                className="w-full text-xl font-bold text-slate-800 text-center mb-4 bg-transparent border-b border-transparent hover:border-slate-200 focus:border-indigo-500 focus:outline-none placeholder-slate-400 transition-all"
+                                value={bill.billName || ''}
+                                onChange={(e) => setBillName(e.target.value)}
+                                placeholder="Bill Summary (Edit Name)"
+                            />
                             <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Total Breakdown</h3>
                             <div className="flex justify-between text-sm text-slate-500">
                                 <span>Subtotal</span>
