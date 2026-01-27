@@ -33,6 +33,15 @@ export const Dashboard: React.FC = () => {
         if (isSettingsOpen) setTempKey(userApiKey || '');
     }, [isSettingsOpen, userApiKey]);
 
+    // Auto-prompt for key if missing
+    React.useEffect(() => {
+        if (!userApiKey) {
+            // Check if we have an Env key as fallback to decide urgency, 
+            // but user asked to "Always ask", so we prompt regardless to encourage BYOK.
+            setIsSettingsOpen(true);
+        }
+    }, []); // Run once on mount
+
     const handleSaveKey = () => {
         setUserApiKey(tempKey);
         setIsSettingsOpen(false);
@@ -155,7 +164,7 @@ export const Dashboard: React.FC = () => {
                     <div className="flex items-center justify-between">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
                         <div className="flex gap-2">
-                            <UploadBill />
+                            <UploadBill onMissingKey={() => setIsSettingsOpen(true)} />
                             <button
                                 onClick={loadMockBill}
                                 className="px-4 py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm"

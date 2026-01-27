@@ -1,8 +1,12 @@
 import React, { useRef } from 'react';
 import { useBillStore } from '../store/useBillStore';
 
-export const UploadBill: React.FC = () => {
-    const { uploadBill, isUploading } = useBillStore();
+interface UploadBillProps {
+    onMissingKey?: () => void;
+}
+
+export const UploadBill: React.FC<UploadBillProps> = ({ onMissingKey }) => {
+    const { uploadBill, isUploading, userApiKey } = useBillStore();
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -17,6 +21,11 @@ export const UploadBill: React.FC = () => {
     };
 
     const handleClick = () => {
+        if (!userApiKey) {
+            if (onMissingKey) onMissingKey();
+            else alert("Please set your API Key in settings first.");
+            return;
+        }
         fileInputRef.current?.click();
     };
 

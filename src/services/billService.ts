@@ -7,7 +7,8 @@ export interface ParsedBill {
     billName?: string;
 }
 
-const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+// NO FALLBACK: User must provide a key via Settings.
+// const API_KEY = import.meta.env.VITE_GEMINI_API_KEY; 
 
 // Helper to convert File to Base64
 const fileToGenerativePart = async (file: File) => {
@@ -30,15 +31,13 @@ const fileToGenerativePart = async (file: File) => {
 };
 
 export const uploadBillService = async (file: File, userApiKey?: string | null): Promise<ParsedBill> => {
-    const finalApiKey = userApiKey || API_KEY;
-
-    if (!finalApiKey) {
-        console.error("❌ Gemini API Key is missing!");
-        throw new Error("Missing API Key. Please add a Key in Settings or configure .env.");
+    if (!userApiKey) {
+        console.error("❌ No Gemini API Key provided.");
+        throw new Error("Missing Gemini API Key. Please set it in Settings.");
     }
 
     try {
-        const genAI = new GoogleGenerativeAI(finalApiKey);
+        const genAI = new GoogleGenerativeAI(userApiKey);
         // Switching to 2.5 Flash as final attempt to find a model with quota
         const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash" });
 
