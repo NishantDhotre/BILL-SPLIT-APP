@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import type { BillState, Item } from '../types';
 import { calculateBillSplit, validateItem } from '../utils/calculations';
+import { uploadBillService } from '../services/billService';
 
 interface BillStoreState {
     bill: BillState;
@@ -178,8 +179,6 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     uploadBill: async (file: File) => {
         set({ isUploading: true, uploadError: null });
         try {
-            // Dynamic import to avoid circular dependency
-            const { uploadBillService } = await import('../services/billService');
             const parsedData = await uploadBillService(file, get().userApiKey);
 
             set((state) => {
