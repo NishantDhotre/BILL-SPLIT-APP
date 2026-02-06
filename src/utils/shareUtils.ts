@@ -1,5 +1,3 @@
-import { toPng } from 'html-to-image';
-
 /**
  * Captures a DOM element by ID and returns a Blob.
  */
@@ -12,7 +10,10 @@ export const captureReceipt = async (elementId: string): Promise<Blob | null> =>
 
     console.log(`Attempting to capture element with ID: ${elementId}`);
     try {
-        console.log('Starting html-to-image capture...');
+        console.log('Lazy loading html-to-image...');
+        const { toPng } = await import('html-to-image');
+
+        console.log('Starting capture...');
         const dataUrl = await toPng(element, {
             backgroundColor: '#ffffff',
             pixelRatio: 2,

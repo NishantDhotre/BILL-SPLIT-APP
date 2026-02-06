@@ -40,7 +40,7 @@ export const Dashboard: React.FC = () => {
             // but user asked to "Always ask", so we prompt regardless to encourage BYOK.
             setIsSettingsOpen(true);
         }
-    }, []); // Run once on mount
+    }, [userApiKey]);
 
     const handleSaveKey = () => {
         setUserApiKey(tempKey);
@@ -99,12 +99,13 @@ export const Dashboard: React.FC = () => {
 
                 {/* Header */}
                 {/* Header */}
-                <div className="relative flex flex-col space-y-2">
+                {/* Header */}
+                <div className="relative flex flex-col space-y-2 animate-enter">
                     {/* Settings Button: Static Right on Mobile, Absolute Right on Desktop */}
                     <div className="flex justify-end w-full sm:absolute sm:top-1 sm:right-0 sm:w-auto z-10">
                         <button
                             onClick={() => setIsSettingsOpen(true)}
-                            className="flex items-center gap-2 p-2 text-slate-400 hover:text-indigo-600 transition-colors text-sm font-bold bg-slate-50 sm:bg-transparent rounded-xl sm:rounded-none border sm:border-0 border-slate-100"
+                            className="flex items-center gap-2 px-3 h-12 sm:h-auto sm:p-2 text-slate-400 hover:text-indigo-600 transition-colors text-sm font-bold bg-slate-50 sm:bg-transparent rounded-xl sm:rounded-none border sm:border-0 border-slate-100"
                             title="Configure API Key"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -159,14 +160,16 @@ export const Dashboard: React.FC = () => {
                 )}
 
                 {/* Participant Management */}
-                <ParticipantManagement
-                    participants={bill.participants}
-                    onAddParticipant={addParticipant}
-                    onRemoveParticipant={removeParticipant}
-                />
+                <div className="animate-enter delay-100">
+                    <ParticipantManagement
+                        participants={bill.participants}
+                        onAddParticipant={addParticipant}
+                        onRemoveParticipant={removeParticipant}
+                    />
+                </div>
 
                 {/* Bill Context & Items */}
-                <div className="space-y-4">
+                <div className="space-y-4 animate-enter delay-200">
                     <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <h2 className="text-xl font-bold text-slate-800">Items</h2>
                         {/* Action Buttons: 3 Cols on Mobile (Icon Only), Flex on Desktop (Text) */}
@@ -180,7 +183,7 @@ export const Dashboard: React.FC = () => {
                             {/* Import Button */}
                             <button
                                 onClick={() => setIsImportOpen(true)}
-                                className="col-span-1 px-4 py-3 sm:py-2 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm flex items-center justify-center gap-2"
+                                className="col-span-1 h-12 px-4 bg-white text-slate-600 text-sm font-semibold rounded-xl hover:bg-slate-50 border border-slate-200 transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95"
                                 title="Import Manual JSON"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -192,7 +195,7 @@ export const Dashboard: React.FC = () => {
                             {/* Add Item Button */}
                             <button
                                 onClick={addItem}
-                                className="col-span-1 px-4 py-3 sm:py-2 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30 flex items-center justify-center gap-2"
+                                className="col-span-1 h-12 px-4 bg-slate-800 text-white text-sm font-semibold rounded-xl hover:bg-slate-700 transition-all shadow-lg shadow-slate-500/30 flex items-center justify-center gap-2 active:scale-95"
                                 title="Add New Item"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
@@ -212,10 +215,10 @@ export const Dashboard: React.FC = () => {
                 </div>
 
                 {/* Results Area */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-enter delay-500">
 
                     {/* Math Breakdown Panel */}
-                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-sm col-span-full md:col-span-1 flex flex-col justify-between gap-4">
+                    <div className="bg-white rounded-2xl p-6 border border-slate-100 shadow-lg shadow-slate-200/50 col-span-full md:col-span-1 flex flex-col justify-between gap-4">
 
                         {/* Summary Math */}
                         <div id="summary-card" className="space-y-2 border-b border-slate-100 pb-4 bg-white p-4">
@@ -253,7 +256,7 @@ export const Dashboard: React.FC = () => {
                                     type="number"
                                     value={bill.tax || ''}
                                     onChange={(e) => setTax(Math.max(0, Number(e.target.value)))}
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full h-12 px-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="0"
                                 />
                             </div>
@@ -263,7 +266,7 @@ export const Dashboard: React.FC = () => {
                                     type="number"
                                     value={bill.discount || ''}
                                     onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))}
-                                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="w-full h-12 px-3 bg-slate-50 border border-slate-200 rounded-lg font-bold text-sm text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                                     placeholder="0"
                                 />
                             </div>
@@ -291,7 +294,7 @@ export const Dashboard: React.FC = () => {
                         <div
                             key={p.id}
                             onClick={() => setViewingParticipant(p.id)}
-                            className={`bg-white rounded-2xl p-6 border border-slate-100 shadow-sm flex items-center justify-between hover:shadow-md cursor-pointer transition-all ${!isValid ? 'opacity-50' : ''} group`}
+                            className={`bg-white rounded-2xl p-6 border border-slate-100 shadow-md hover:shadow-xl hover:-translate-y-1 cursor-pointer transition-all duration-200 ${!isValid ? 'opacity-50' : ''} group`}
                         >
                             <div>
                                 <h3 className="text-sm font-bold text-slate-400 uppercase tracking-wider mb-1 group-hover:text-indigo-500 transition-colors">

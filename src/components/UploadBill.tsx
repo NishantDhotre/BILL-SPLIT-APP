@@ -42,7 +42,7 @@ export const UploadBill: React.FC<UploadBillProps> = ({ onMissingKey }) => {
                 onClick={handleClick}
                 disabled={isUploading}
                 className={`
-                    w-full px-4 py-3 sm:py-2 text-sm font-semibold rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2
+                    w-full h-12 px-4 text-sm font-semibold rounded-xl border transition-all shadow-sm flex items-center justify-center gap-2 active:scale-95
                     ${isUploading
                         ? 'bg-slate-100 text-slate-400 cursor-not-allowed border-slate-200'
                         : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 hover:border-slate-300'

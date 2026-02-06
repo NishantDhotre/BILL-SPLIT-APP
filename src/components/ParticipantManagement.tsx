@@ -36,7 +36,7 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                         {p.name}
                         <button
                             onClick={() => onRemoveParticipant(p.id)}
-                            className="w-5 h-5 flex items-center justify-center rounded-full text-indigo-400 hover:text-red-500 hover:bg-red-50 transition-colors"
+                            className="w-6 h-6 flex items-center justify-center rounded-full text-indigo-400 hover:text-red-500 hover:bg-red-50 transition-colors ml-1"
                             aria-label={`Remove ${p.name}`}
                         >
                             ×
@@ -52,12 +52,12 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                     onChange={(e) => setNewName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
                     placeholder="Add name..."
-                    className="flex-1 px-4 py-2 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    className="flex-1 h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
                 />
                 <button
                     onClick={handleAdd}
                     disabled={!newName.trim()}
-                    className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2"
+                    className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2"
                     title="Add Participant"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
