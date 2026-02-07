@@ -82,14 +82,15 @@ Visit `http://localhost:5173` to view the app.
 
 The project includes Python scripts to generate consistent branding assets:
 
-- **`generate_logo.py`**: Creates the geometric "Bill Splitter" logo source.
-- **`generate_assets.py`**: Generates Favicons, Web Manifest icons, and Android Adaptive Icons (mipmaps).
+- **`scripts/generate_logo.py`**: Creates the geometric "Bill Splitter" logo source.
+- **`scripts/generate_assets.py`**: Generates Favicons, Web Manifest icons, and Android Adaptive Icons (mipmaps).
 
 To regenerate assets:
 
 ```bash
 # Requires Python & Pillow
 pip install Pillow
+cd scripts
 python generate_logo.py
 python generate_assets.py
 ```
