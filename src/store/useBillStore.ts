@@ -98,7 +98,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             const newParticipants = state.bill.participants.filter(p => p.id !== id);
             const newItems = state.bill.items.map(item => {
                 const { [id]: _, ...rest } = item.consumption;
-                return { ...item, consumption: rest };
+                return { ...item, consumption: rest as Record<string, boolean | number> };
             });
 
             return { bill: { ...state.bill, participants: newParticipants, items: newItems } };

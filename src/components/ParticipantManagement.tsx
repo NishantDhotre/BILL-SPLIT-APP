@@ -22,8 +22,8 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
     };
 
     return (
-        <div className="p-6 bg-white/80 backdrop-blur-md rounded-2xl shadow-sm border border-slate-100">
-            <h2 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+        <div className="p-6 bg-m3-surface rounded-2xl shadow-elevation-1 border border-m3-outline-variant">
+            <h2 className="text-lg font-bold text-m3-on-surface mb-4 flex items-center gap-2">
                 <span>👥</span> Participants
             </h2>
 
@@ -31,12 +31,12 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                 {participants.map((p) => (
                     <div
                         key={p.id}
-                        className="group flex items-center gap-2 px-3 py-1.5 bg-indigo-50 text-indigo-700 rounded-full text-sm font-medium border border-indigo-100 transition-all hover:bg-indigo-100"
+                        className="group flex items-center gap-2 px-3 py-1.5 bg-m3-secondary-container text-m3-on-secondary-container rounded-full text-sm font-medium border border-transparent hover:border-m3-secondary transition-all"
                     >
                         {p.name}
                         <button
                             onClick={() => onRemoveParticipant(p.id)}
-                            className="w-6 h-6 flex items-center justify-center rounded-full text-indigo-400 hover:text-red-500 hover:bg-red-50 transition-colors ml-1"
+                            className="w-6 h-6 flex items-center justify-center rounded-full text-m3-on-secondary-container/60 hover:text-m3-on-error hover:bg-m3-error transition-colors ml-1"
                             aria-label={`Remove ${p.name}`}
                         >
                             ×
@@ -52,12 +52,12 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                     onChange={(e) => setNewName(e.target.value)}
                     onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
                     placeholder="Add name..."
-                    className="flex-1 h-12 px-4 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm"
+                    className="flex-1 h-12 px-4 bg-m3-surface-variant text-m3-on-surface-variant border border-transparent focus:bg-m3-surface focus:border-m3-primary focus:text-m3-on-surface rounded-xl focus:outline-none focus:ring-1 focus:ring-m3-primary transition-all text-sm placeholder:text-m3-on-surface-variant/50"
                 />
                 <button
                     onClick={handleAdd}
                     disabled={!newName.trim()}
-                    className="h-12 px-6 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-md shadow-indigo-500/20 active:scale-95 flex items-center justify-center gap-2"
+                    className="h-12 px-6 bg-m3-primary hover:bg-indigo-700 text-m3-on-primary text-sm font-bold rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-elevation-1 active:scale-95 flex items-center justify-center gap-2"
                     title="Add Participant"
                 >
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">

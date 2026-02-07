@@ -1,0 +1,17 @@
+<svg width="1024" height="1024" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background: Indigo-600 -->
+  <rect width="1024" height="1024" rx="220" fill="#4F46E5"/>
+  
+  <!-- Content: Stylized Bill/Split Symbol -->
+  <g transform="translate(262, 262)" fill="white">
+     <!-- Main Bill Shape -->
+     <path d="M100 0 H400 A40 40 0 0 1 440 40 V500 L370 460 L300 500 L230 460 L160 500 L90 460 L20 500 V40 A40 40 0 0 1 60 0 Z" opacity="0.9"/>
+     
+     <!-- Split Line/Cut -->
+     <path d="M0 250 L500 250" stroke="#4F46E5" stroke-width="30" stroke-dasharray="60 40" transform="rotate(-15 250 250)"/>
+     
+     <!-- Coin/Donut -->
+     <circle cx="230" cy="200" r="50" fill="#4F46E5" opacity="1"/>
+     <circle cx="230" cy="200" r="25" fill="white"/>
+  </g>
+</svg>
