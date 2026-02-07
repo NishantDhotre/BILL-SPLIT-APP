@@ -1,5 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useBillStore } from '../store/useBillStore';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface UploadBillProps {
     onMissingKey?: () => void;
@@ -51,12 +52,13 @@ export const UploadBill: React.FC<UploadBillProps> = ({ onMissingKey }) => {
         }
     };
 
-    const handleClick = () => {
+    const handleClick = async () => {
         if (!userApiKey) {
             if (onMissingKey) onMissingKey();
             else alert("Please set your API Key in settings first.");
             return;
         }
+        await Haptics.impact({ style: ImpactStyle.Light });
         fileInputRef.current?.click();
     };
 

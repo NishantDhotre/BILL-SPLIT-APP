@@ -6,6 +6,7 @@ import { UploadBill } from './UploadBill';
 import { captureReceipt, shareImage } from '../utils/shareUtils';
 import { ManualImportModal } from './ManualImportModal';
 import { calculateItemSplit } from '../utils/calculations';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 export const Dashboard: React.FC = () => {
     const {
@@ -227,6 +228,7 @@ export const Dashboard: React.FC = () => {
                                     <label className="text-[10px] uppercase font-bold text-m3-on-surface-variant tracking-wider">Tax</label>
                                     <input
                                         type="number"
+                                        inputMode="decimal"
                                         value={bill.tax || ''}
                                         onChange={(e) => setTax(Math.max(0, Number(e.target.value)))}
                                         className="w-full bg-transparent font-bold text-m3-on-surface focus:outline-none"
@@ -237,6 +239,7 @@ export const Dashboard: React.FC = () => {
                                     <label className="text-[10px] uppercase font-bold text-m3-on-surface-variant tracking-wider">Discount</label>
                                     <input
                                         type="number"
+                                        inputMode="decimal"
                                         value={bill.discount || ''}
                                         onChange={(e) => setDiscount(Math.max(0, Number(e.target.value)))}
                                         className="w-full bg-transparent font-bold text-m3-on-surface focus:outline-none"
@@ -247,6 +250,7 @@ export const Dashboard: React.FC = () => {
 
                             <button
                                 onClick={async () => {
+                                    await Haptics.impact({ style: ImpactStyle.Light });
                                     const blob = await captureReceipt('summary-card');
                                     if (blob) shareImage(blob, 'bill-summary.png', 'Bill Summary');
                                 }}

@@ -2,6 +2,7 @@ import React from 'react';
 import type { Item, Participant, SplitMode } from '../types';
 import { CheckboxControl, UnitControl } from './SplitControls';
 import { validateItem } from '../utils/calculations';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface BillTableProps {
     items: Item[];
@@ -105,6 +106,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                     <td className="py-3 px-2">
                                         <input
                                             type="number"
+                                            inputMode="numeric"
                                             min="1"
                                             value={item.quantity || 1}
                                             onChange={(e) => onUpdateItem(item.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
@@ -116,6 +118,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                             <span className="mr-1 text-xs">₹</span>
                                             <input
                                                 type="number"
+                                                inputMode="decimal"
                                                 min="0"
                                                 value={item.price}
                                                 onChange={(e) => onUpdateItem(item.id, { price: parseFloat(e.target.value) || 0 })}
@@ -146,7 +149,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                         </td>
                                     ))}
                                     <td className="py-3 px-4 text-center">
-                                        <button onClick={() => onDeleteItem(item.id)} className="w-8 h-8 flex items-center justify-center text-m3-on-surface-variant hover:text-m3-on-error hover:bg-m3-error-container rounded-full transition-colors mx-auto active:scale-95">×</button>
+                                        <button onClick={async () => { await Haptics.impact({ style: ImpactStyle.Light }); onDeleteItem(item.id); }} className="w-8 h-8 flex items-center justify-center text-m3-on-surface-variant hover:text-m3-on-error hover:bg-m3-error-container rounded-full transition-colors mx-auto active:scale-95">×</button>
                                     </td>
                                 </tr>
                             );
@@ -180,6 +183,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                     <span className="text-m3-on-surface-variant text-xs mr-1">₹</span>
                                     <input
                                         type="number"
+                                        inputMode="decimal"
                                         min="0"
                                         value={item.price}
                                         onChange={(e) => onUpdateItem(item.id, { price: parseFloat(e.target.value) || 0 })}
@@ -195,6 +199,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                     <span className="absolute -top-2 left-0 text-[8px] text-m3-on-surface-variant font-bold uppercase">Qty</span>
                                     <input
                                         type="number"
+                                        inputMode="numeric"
                                         min="1"
                                         value={item.quantity || 1}
                                         onChange={(e) => onUpdateItem(item.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
@@ -228,7 +233,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                 </div>
 
                                 {/* Delete */}
-                                <button onClick={() => onDeleteItem(item.id)} className="shrink-0 w-8 h-8 flex items-center justify-center text-m3-on-surface-variant hover:text-m3-on-error hover:bg-m3-error-container rounded-full transition-colors active:scale-95">
+                                <button onClick={async () => { await Haptics.impact({ style: ImpactStyle.Light }); onDeleteItem(item.id); }} className="shrink-0 w-8 h-8 flex items-center justify-center text-m3-on-surface-variant hover:text-m3-on-error hover:bg-m3-error-container rounded-full transition-colors active:scale-95">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" />
                                     </svg>

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import type { Participant } from '../types';
+import { Haptics, ImpactStyle } from '@capacitor/haptics';
 
 interface ParticipantManagementProps {
     participants: Participant[];
@@ -35,7 +36,10 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                     >
                         {p.name}
                         <button
-                            onClick={() => onRemoveParticipant(p.id)}
+                            onClick={async () => {
+                                await Haptics.impact({ style: ImpactStyle.Light });
+                                onRemoveParticipant(p.id);
+                            }}
                             className="w-6 h-6 flex items-center justify-center rounded-full text-m3-on-secondary-container/60 hover:text-m3-on-error hover:bg-m3-error transition-colors ml-1"
                             aria-label={`Remove ${p.name}`}
                         >

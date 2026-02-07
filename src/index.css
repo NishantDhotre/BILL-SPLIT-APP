@@ -76,6 +76,21 @@ body {
   padding-bottom: var(--sab);
   padding-left: var(--sal);
   padding-right: var(--sar);
+
+  /* Native App Feel */
+  overscroll-behavior-y: none;
+  /* Prevent Pull-to-Refresh / Rubber banding */
+  -webkit-tap-highlight-color: transparent;
+  /* Remove gray tap highlight */
+}
+
+/* Optimize touch targets */
+input,
+button,
+select,
+textarea {
+  touch-action: manipulation;
+  /* Disable double-tap to zoom */
 }
 
 /* Custom Scrollbar (Web only, mobile hides it usually) */
