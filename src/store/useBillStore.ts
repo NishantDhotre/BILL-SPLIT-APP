@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { BillState, Item } from '../types';
+import type { BillState, Item, SavedBill } from '../types';
 import { calculateBillSplit, validateItem } from '../utils/calculations';
 import { uploadBillService } from '../services/billService';
 
@@ -28,6 +28,19 @@ interface BillStoreState {
 
     // Phase 14: Manual Import
     importBillJSON: (jsonString: string) => void;
+
+    // Phase 15: UPI Integration
+    isUpiEnabled: boolean;
+    upiId: string;
+    upiName: string;
+    setUpiConfig: (enabled: boolean, id: string, name: string) => void;
+
+    // Phase 16: History
+    savedBills: SavedBill[];
+    saveCurrentBill: () => void;
+    loadBill: (id: string) => void;
+    deleteSavedBill: (id: string) => void;
+    clearCurrentBill: () => void;
 }
 
 const INITIAL_BILL: BillState = {
@@ -67,6 +80,69 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             localStorage.removeItem('user_gemini_api_key');
         }
         set({ userApiKey: key || null });
+    },
+
+    // Phase 15: UPI Init
+    isUpiEnabled: localStorage.getItem('user_upi_enabled') === 'true',
+    upiId: localStorage.getItem('user_upi_id') || '',
+    upiName: localStorage.getItem('user_upi_name') || '',
+    setUpiConfig: (enabled: boolean, id: string, name: string) => {
+        localStorage.setItem('user_upi_enabled', String(enabled));
+        localStorage.setItem('user_upi_id', id);
+        localStorage.setItem('user_upi_name', name);
+        set({ isUpiEnabled: enabled, upiId: id, upiName: name });
+    },
+
+    // Phase 16: History Init
+    savedBills: JSON.parse(localStorage.getItem('saved_bills_history') || '[]'),
+
+    saveCurrentBill: () => {
+        set((state) => {
+            const newBill: SavedBill = {
+                ...state.bill,
+                id: `b-${Date.now()}`,
+                createdAt: Date.now()
+            };
+            const updatedHistory = [newBill, ...state.savedBills];
+            localStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
+            return { savedBills: updatedHistory };
+        });
+    },
+
+    loadBill: (id: string) => {
+        set((state) => {
+            const billToLoad = state.savedBills.find(b => b.id === id);
+            if (!billToLoad) return state;
+
+            // We strip out the id and createdAt when loading into active state
+            const { id: _id, createdAt, ...billData } = billToLoad;
+
+            const allValid = billData.items.every(validateItem);
+            const results = calculateBillSplit(billData);
+
+            return {
+                bill: billData,
+                splitResults: results,
+                isValid: allValid
+            };
+        });
+    },
+
+    deleteSavedBill: (id: string) => {
+        set((state) => {
+            const updatedHistory = state.savedBills.filter(b => b.id !== id);
+            localStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
+            return { savedBills: updatedHistory };
+        });
+    },
+
+    clearCurrentBill: () => {
+        set({
+            bill: INITIAL_BILL,
+            splitResults: calculateBillSplit(INITIAL_BILL),
+            isValid: true,
+            uploadError: null
+        });
     },
 
     addParticipant: (name) => {

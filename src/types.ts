@@ -1,11 +1,11 @@
-export type Participant = {
+export interface Participant {
     id: string;
     name: string;
-};
+}
 
 export type SplitMode = 'EQUAL' | 'UNIT';
 
-export type Item = {
+export interface Item {
     id: string;
     name: string;
     price: number;
@@ -15,7 +15,7 @@ export type Item = {
     consumption: {
         [participantId: string]: boolean | number;
     };
-};
+}
 
 // Chat Action Types
 export type Action =
@@ -25,10 +25,15 @@ export type Action =
     | { type: 'SET_CHECKED'; item: string; participants: string[] } // Item Name or ID? Spec says "item": "Paneer". I should support Name matching since LLM uses names.
     | { type: 'SET_UNIT'; item: string; participant: string; quantity: number };
 
-export type BillState = {
+export interface BillState {
     participants: Participant[];
     items: Item[];
     discount: number; // Global discount amount
     tax: number; // Global tax/extra charges amount
     billName?: string; // e.g. Restaurant Name
-};
+}
+
+export interface SavedBill extends BillState {
+    id: string;
+    createdAt: number;
+}

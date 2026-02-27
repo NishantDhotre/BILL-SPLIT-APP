@@ -108,8 +108,12 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                             type="number"
                                             inputMode="numeric"
                                             min="1"
-                                            value={item.quantity || 1}
-                                            onChange={(e) => onUpdateItem(item.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                                            value={item.quantity === 0 ? '' : (item.quantity || 1)}
+                                            onChange={(e) => {
+                                                const val = e.target.value;
+                                                // If empty, set to a temporary 0 so it clears the field but doesn't throw NaN errors
+                                                onUpdateItem(item.id, { quantity: val === '' ? 0 : Math.max(1, parseInt(val) || 1) });
+                                            }}
                                             className="w-12 bg-transparent text-center font-mono text-sm border-b border-transparent focus:border-m3-primary outline-none text-m3-on-surface"
                                         />
                                     </td>
@@ -120,8 +124,11 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                                 type="number"
                                                 inputMode="decimal"
                                                 min="0"
-                                                value={item.price}
-                                                onChange={(e) => onUpdateItem(item.id, { price: parseFloat(e.target.value) || 0 })}
+                                                value={item.price === 0 ? '' : item.price}
+                                                onChange={(e) => {
+                                                    const val = e.target.value;
+                                                    onUpdateItem(item.id, { price: val === '' ? 0 : parseFloat(val) || 0 });
+                                                }}
                                                 className="bg-transparent w-20 focus:outline-none font-mono text-sm text-m3-on-surface"
                                             />
                                         </div>
@@ -185,8 +192,11 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                         type="number"
                                         inputMode="decimal"
                                         min="0"
-                                        value={item.price}
-                                        onChange={(e) => onUpdateItem(item.id, { price: parseFloat(e.target.value) || 0 })}
+                                        value={item.price === 0 ? '' : item.price}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            onUpdateItem(item.id, { price: val === '' ? 0 : parseFloat(val) || 0 });
+                                        }}
                                         className="w-16 bg-transparent font-mono font-bold text-m3-on-surface outline-none text-right"
                                     />
                                 </div>
@@ -201,8 +211,11 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                         type="number"
                                         inputMode="numeric"
                                         min="1"
-                                        value={item.quantity || 1}
-                                        onChange={(e) => onUpdateItem(item.id, { quantity: Math.max(1, parseInt(e.target.value) || 1) })}
+                                        value={item.quantity === 0 ? '' : (item.quantity || 1)}
+                                        onChange={(e) => {
+                                            const val = e.target.value;
+                                            onUpdateItem(item.id, { quantity: val === '' ? 0 : Math.max(1, parseInt(val) || 1) });
+                                        }}
                                         className="w-full h-10 bg-m3-surface-variant border border-m3-outline-variant rounded-lg text-center font-mono font-bold text-m3-on-surface outline-none text-xs"
                                     />
                                 </div>
