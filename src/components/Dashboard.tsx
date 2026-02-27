@@ -349,104 +349,121 @@ export const Dashboard: React.FC = () => {
                 {/* Participant Detail Modal */}
                 {
                     viewingParticipant && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                        <div className="fixed inset-0 z-50 flex flex-col p-4 sm:p-6 items-center justify-center bg-black/40 backdrop-blur-sm"
                             onClick={() => setViewingParticipant(null)}>
-                            <div className="bg-m3-surface rounded-2xl w-full max-w-md shadow-elevation-5 overflow-hidden animate-enter" onClick={e => e.stopPropagation()}>
 
-                                <div id="mini-bill-card">
-                                    <div className="bg-m3-primary p-6 text-m3-on-primary">
-                                        <div className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">{bill.billName}</div>
-                                        <h2 className="text-2xl font-bold">
-                                            {bill.participants.find(p => p.id === viewingParticipant)?.name}'s Share
-                                        </h2>
-                                    </div>
-                                    <div className="p-6 max-h-[50vh] overflow-y-auto space-y-3 bg-m3-surface">
-                                        {getParticipantDetails(viewingParticipant)?.map((item, idx) => (
-                                            <div key={idx} className="flex justify-between text-sm py-2 border-b border-m3-outline-variant/50 last:border-0">
-                                                <span className="text-m3-on-surface font-medium truncate pr-4">{item.name}</span>
-                                                <span className={`font-bold ${item.share < 0 ? 'text-m3-tertiary' : 'text-m3-on-surface'}`}>
-                                                    ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
-                                                </span>
-                                            </div>
-                                        ))}
-                                        {getParticipantDetails(viewingParticipant)?.length === 0 && (
-                                            <p className="text-center text-m3-on-surface-variant py-4">No items assigned yet.</p>
-                                        )}
-                                    </div>
-                                    <div className="p-6 bg-m3-surface-variant border-t border-m3-outline-variant flex justify-between items-center">
-                                        <span className="font-bold text-m3-on-surface-variant">Total Payable</span>
-                                        <span className="text-3xl font-black text-m3-primary">
-                                            ₹{(splitResults[viewingParticipant] || 0).toFixed(2)}
-                                        </span>
-                                    </div>
+                            {/* Modal Container */}
+                            <div className="bg-m3-surface rounded-2xl w-full max-w-md shadow-elevation-5 flex flex-col max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-enter" onClick={e => e.stopPropagation()}>
 
-                                    {/* UPI QR Code Generation */}
-                                    {isUpiEnabled && upiId && (splitResults[viewingParticipant] || 0) > 0 && (
-                                        <div className="p-6 border-t border-m3-outline-variant bg-white flex flex-col items-center gap-3">
-                                            <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">Scan to Pay</span>
-                                            <QRCodeSVG
-                                                value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill')}&am=${(splitResults[viewingParticipant] || 0).toFixed(2)}&cu=INR`}
-                                                size={160}
-                                                level="L"
-                                                includeMargin={true}
-                                            />
-                                            <span className="text-sm font-bold text-gray-800">{upiId}</span>
-                                        </div>
-                                    )}
+                                {/* Fixed Header */}
+                                <div className="bg-m3-primary p-4 sm:p-5 text-m3-on-primary shrink-0 z-10 shadow-sm relative">
+                                    <div className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">{bill.billName || 'SPLIT BREAKDOWN'}</div>
+                                    <h2 className="text-xl font-bold line-clamp-1">
+                                        {bill.participants.find(p => p.id === viewingParticipant)?.name}'s Share
+                                    </h2>
                                 </div>
 
-                                <div className="p-4 bg-m3-surface flex flex-wrap gap-3">
-                                    <button
-                                        onClick={() => setViewingParticipant(null)}
-                                        className="flex-1 min-w-[120px] px-4 py-3 text-m3-on-surface-variant font-bold hover:bg-m3-surface-variant rounded-xl transition-colors"
-                                    >
-                                        Close
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
-                                            const details = getParticipantDetails(viewingParticipant);
-                                            const total = (splitResults[viewingParticipant] || 0).toFixed(2);
+                                {/* Dual Scroll Container Area */}
+                                <div id="mini-bill-card" className="flex flex-col flex-1 min-h-0 bg-white">
 
-                                            let text = `*Bill Split for ${pName}*\n`;
-                                            if (bill.billName) text += `*${bill.billName}*\n\n`;
-                                            else text += '\n';
+                                    {/* Sibling A: Scrollable Items List */}
+                                    <div className="p-4 sm:p-5 flex-1 overflow-y-auto min-h-0">
+                                        <div className="space-y-2">
+                                            {getParticipantDetails(viewingParticipant)?.map((item, idx) => (
+                                                <div key={idx} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0">
+                                                    <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
+                                                    <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                                                        ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
+                                                    </span>
+                                                </div>
+                                            ))}
+                                            {getParticipantDetails(viewingParticipant)?.length === 0 && (
+                                                <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
+                                            )}
+                                        </div>
+                                    </div>
 
-                                            details?.forEach(item => {
-                                                text += `${item.name}: ₹${Math.abs(item.share).toFixed(2)} ${item.share < 0 ? '(Cr)' : ''}\n`;
-                                            });
+                                    {/* Sibling B: Scrollable Bottom Section (Total + QR + Buttons) */}
+                                    <div className="flex flex-col flex-1 overflow-y-auto min-h-0 bg-gray-50/80 border-t border-gray-200">
 
-                                            text += `\n*Total Payable: ₹${total}*\n`;
+                                        <div className="px-4 sm:px-5 py-3 bg-indigo-50/50 border-b border-indigo-100 flex justify-between items-center shrink-0">
+                                            <span className="font-bold text-gray-600 text-sm">Total Payable</span>
+                                            <span className="text-xl sm:text-2xl font-black text-indigo-600">
+                                                ₹{(splitResults[viewingParticipant] || 0).toFixed(2)}
+                                            </span>
+                                        </div>
 
-                                            if (isUpiEnabled && upiId && Number(total) > 0) {
-                                                text += `\n*UPI ID*: ${upiId}\n`;
-                                                text += `*Auto-Pay Link*: upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR\n`;
-                                            }
+                                        {/* UPI QR Code Generation */}
+                                        {isUpiEnabled && upiId && (splitResults[viewingParticipant] || 0) > 0 && (
+                                            <div className="py-5 px-4 flex flex-col items-center gap-2 shrink-0">
+                                                <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Scan to Pay</span>
+                                                <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200">
+                                                    <QRCodeSVG
+                                                        value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill')}&am=${(splitResults[viewingParticipant] || 0).toFixed(2)}&cu=INR`}
+                                                        size={140}
+                                                        level="L"
+                                                        includeMargin={false}
+                                                    />
+                                                </div>
+                                                <span className="text-xs font-bold text-gray-800 text-center truncate w-full max-w-[200px] mt-1">{upiId}</span>
+                                            </div>
+                                        )}
 
-                                            try {
-                                                await navigator.clipboard.writeText(text);
-                                                alert('Copied to clipboard! You can paste in WhatsApp now.');
-                                            } catch (err) {
-                                                console.error('Failed to copy text: ', err);
-                                                alert('Failed to copy. Try sharing the image receipt instead.');
-                                            }
-                                        }}
-                                        className="flex-1 min-w-[120px] px-4 py-3 bg-m3-surface-variant text-m3-on-surface font-bold rounded-xl hover:bg-m3-outline transition-colors flex items-center justify-center gap-2"
-                                    >
-                                        <span>📋</span> Copy Text
-                                    </button>
-                                    <button
-                                        onClick={async () => {
-                                            const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
-                                            const blob = await captureReceipt('mini-bill-card');
-                                            if (blob) {
-                                                await shareImage(blob, `bill-${pName}.png`, `Bill for ${pName}`);
-                                            }
-                                        }}
-                                        className="flex-1 min-w-[120px] px-4 py-3 bg-m3-primary text-m3-on-primary font-bold rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 flex items-center justify-center gap-2"
-                                    >
-                                        <span>📸</span> Share Receipt
-                                    </button>
+                                        {/* Action Buttons wrapped inside the bottom scrollable section */}
+                                        <div className="p-4 border-t border-gray-200 bg-white flex items-center justify-between gap-2 mt-auto shrink-0">
+                                            <button
+                                                onClick={() => setViewingParticipant(null)}
+                                                className="flex-1 px-2 py-3 text-xs sm:text-sm text-m3-on-surface-variant font-bold hover:bg-m3-surface-variant rounded-xl transition-colors truncate"
+                                            >
+                                                Close
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
+                                                    const details = getParticipantDetails(viewingParticipant);
+                                                    const total = (splitResults[viewingParticipant] || 0).toFixed(2);
+
+                                                    let text = `*Bill Split for ${pName}*\n`;
+                                                    if (bill.billName) text += `*${bill.billName}*\n\n`;
+                                                    else text += '\n';
+
+                                                    details?.forEach(item => {
+                                                        text += `${item.name}: ₹${Math.abs(item.share).toFixed(2)} ${item.share < 0 ? '(Cr)' : ''}\n`;
+                                                    });
+
+                                                    text += `\n*Total Payable: ₹${total}*\n`;
+
+                                                    if (isUpiEnabled && upiId && Number(total) > 0) {
+                                                        text += `\n*UPI ID*: ${upiId}\n`;
+                                                        text += `*Auto-Pay Link*: upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR\n`;
+                                                    }
+
+                                                    try {
+                                                        await navigator.clipboard.writeText(text);
+                                                        alert('Copied to clipboard! You can paste in WhatsApp now.');
+                                                    } catch (err) {
+                                                        console.error('Failed to copy text: ', err);
+                                                        alert('Failed to copy. Try sharing the image receipt instead.');
+                                                    }
+                                                }}
+                                                className="flex-1 px-2 py-3 bg-m3-surface-variant text-m3-on-surface text-xs sm:text-sm font-bold rounded-xl hover:bg-m3-outline transition-colors flex items-center justify-center gap-1 sm:gap-2 truncate"
+                                            >
+                                                <span className="hidden sm:inline">📋</span> Copy
+                                            </button>
+                                            <button
+                                                onClick={async () => {
+                                                    const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
+                                                    const blob = await captureReceipt('mini-bill-card');
+                                                    if (blob) {
+                                                        await shareImage(blob, `bill-${pName}.png`, `Bill for ${pName}`);
+                                                    }
+                                                }}
+                                                className="flex-1 px-2 py-3 bg-m3-primary text-m3-on-primary text-xs sm:text-sm font-bold rounded-xl hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-1 sm:gap-2 truncate"
+                                            >
+                                                <span className="hidden sm:inline">📸</span> Share
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
