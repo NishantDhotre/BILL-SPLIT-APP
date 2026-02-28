@@ -348,126 +348,203 @@ export const Dashboard: React.FC = () => {
 
                 {/* Participant Detail Modal */}
                 {
-                    viewingParticipant && (
-                        <div className="fixed inset-0 z-50 flex flex-col p-4 sm:p-6 items-center justify-center bg-black/40 backdrop-blur-sm"
-                            onClick={() => setViewingParticipant(null)}>
+                    viewingParticipant && (() => {
+                        const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
+                        const details = getParticipantDetails(viewingParticipant);
+                        const total = (splitResults[viewingParticipant] || 0).toFixed(2);
+                        const hasQR = isUpiEnabled && upiId && Number(total) > 0;
 
-                            {/* Modal Container */}
-                            <div className="bg-m3-surface rounded-2xl w-full max-w-md shadow-elevation-5 flex flex-col max-h-[85vh] sm:max-h-[90vh] overflow-hidden animate-enter" onClick={e => e.stopPropagation()}>
+                        const copyToClipboard = async () => {
+                            let text = `*Bill Split for ${pName}*\n`;
+                            if (bill.billName) text += `*${bill.billName}*\n\n`;
+                            else text += '\n';
 
-                                {/* Fixed Header */}
-                                <div className="bg-m3-primary p-4 sm:p-5 text-m3-on-primary shrink-0 z-10 shadow-sm relative">
-                                    <div className="text-xs font-bold uppercase tracking-wider opacity-80 mb-1">{bill.billName || 'SPLIT BREAKDOWN'}</div>
-                                    <h2 className="text-xl font-bold line-clamp-1">
-                                        {bill.participants.find(p => p.id === viewingParticipant)?.name}'s Share
-                                    </h2>
+                            details?.forEach(item => {
+                                text += `${item.name}: ₹${Math.abs(item.share).toFixed(2)} ${item.share < 0 ? '(Cr)' : ''}\n`;
+                            });
+
+                            text += `\n*Total Payable: ₹${total}*\n`;
+
+                            if (hasQR) {
+                                text += `\n*UPI ID*: ${upiId}\n`;
+                                text += `*Auto-Pay Link*: upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR\n`;
+                            }
+
+                            try {
+                                await window.navigator.clipboard.writeText(text);
+                                alert('Copied to clipboard! You can paste in WhatsApp now.');
+                            } catch (err) {
+                                console.error('Failed to copy text: ', err);
+                                alert('Failed to copy. Try sharing the image receipt instead.');
+                            }
+                        };
+
+                        const shareImageAction = async () => {
+                            const blob = await captureReceipt('printable-receipt-card');
+                            if (blob) {
+                                await shareImage(blob, `bill-${pName}.png`, `Bill for ${pName}`);
+                            } else {
+                                alert('Failed to generate image.');
+                            }
+                        };
+
+                        return (
+                            <div className="fixed inset-0 z-[60] flex flex-col p-4 sm:p-6 items-center justify-center bg-black/60 backdrop-blur-sm"
+                                onClick={() => setViewingParticipant(null)}>
+
+                                {/* === VISUAL MOBILE MODAL === */}
+                                <div className="bg-m3-surface rounded-2xl w-full max-w-md shadow-elevation-5 flex flex-col max-h-[80vh] sm:max-h-[85vh] overflow-hidden outline-none animate-enter relative z-10" onClick={e => e.stopPropagation()}>
+
+                                    {/* Modal Header - Always Fixed */}
+                                    <div className="bg-m3-primary p-4 shrink-0 shadow-sm relative z-20">
+                                        <div className="text-xs font-bold uppercase tracking-wider text-m3-on-primary/80 mb-1">{bill.billName || 'SPLIT BREAKDOWN'}</div>
+                                        <h2 className="text-xl font-bold text-m3-on-primary line-clamp-1">{pName}'s Share</h2>
+                                    </div>
+
+                                    {hasQR ? (
+                                        /* DESIGN 1: WITH QR CODE */
+                                        <div className="flex flex-col flex-1 min-h-0 bg-white">
+                                            {/* Scrollable Items */}
+                                            <div className="flex-1 overflow-y-auto p-4 min-h-[100px]">
+                                                <div className="space-y-2">
+                                                    {details?.map((item, idx) => (
+                                                        <div key={idx} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors px-1">
+                                                            <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
+                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                                                                ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    {details?.length === 0 && (
+                                                        <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Fixed Footer with QR */}
+                                            <div className="shrink-0 border-t border-gray-200 bg-gray-50 flex flex-col">
+                                                <div className="flex justify-between items-center px-5 py-3 bg-indigo-50 border-b border-indigo-100">
+                                                    <span className="font-bold text-indigo-900 text-sm">Total Payable</span>
+                                                    <span className="text-xl font-black text-indigo-700">₹{total}</span>
+                                                </div>
+                                                {/* Horizontal QR Section to save vertical space */}
+                                                <div className="px-5 py-4 flex items-center justify-between gap-3 bg-white">
+                                                    <div className="flex flex-col items-start max-w-[150px]">
+                                                        <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Scan to Pay</span>
+                                                        <span className="text-sm font-bold text-gray-900 truncate w-full">{upiId}</span>
+                                                        <span className="text-xs text-gray-500 truncate w-full">{upiName || pName}</span>
+                                                    </div>
+                                                    <div className="p-1.5 border border-gray-200 rounded-lg shadow-sm shrink-0 bg-white">
+                                                        <QRCodeSVG
+                                                            value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR`}
+                                                            size={76}
+                                                            level="L"
+                                                            includeMargin={false}
+                                                        />
+                                                    </div>
+                                                </div>
+                                                {/* Action Buttons */}
+                                                <div className="p-3 flex gap-2 border-t border-gray-100 bg-white">
+                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs sm:text-sm transition-colors">Close</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs sm:text-sm transition-colors flex justify-center items-center gap-1"><span className="hidden sm:inline">📋</span> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3 bg-m3-primary hover:bg-indigo-700 text-m3-on-primary font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-colors flex justify-center items-center gap-1"><span className="hidden sm:inline">📸</span> Share</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ) : (
+                                        /* DESIGN 2: NO QR CODE */
+                                        <div className="flex flex-col flex-1 min-h-0 bg-white">
+                                            {/* Scrollable Items */}
+                                            <div className="flex-1 overflow-y-auto p-5 min-h-[100px]">
+                                                <div className="border-b-2 border-dashed border-gray-200 pb-3 mb-3">
+                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Bill Items</span>
+                                                </div>
+                                                <div className="space-y-3">
+                                                    {details?.map((item, idx) => (
+                                                        <div key={idx} className="flex justify-between text-sm sm:text-base border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                                                            <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
+                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                                                                ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
+                                                            </span>
+                                                        </div>
+                                                    ))}
+                                                    {details?.length === 0 && (
+                                                        <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            {/* Fixed Footer WITHOUT QR */}
+                                            <div className="shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100 z-10">
+                                                <div className="p-5 flex flex-col bg-gradient-to-tr from-indigo-50/50 to-white">
+                                                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Total Amount Due</span>
+                                                    <span className="text-3xl font-black text-indigo-600 leading-none">₹{total}</span>
+                                                </div>
+                                                {/* Action Buttons */}
+                                                <div className="p-4 flex gap-3 bg-white border-t border-gray-100">
+                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Close</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-colors flex justify-center items-center gap-2"><span className="hidden sm:inline">📋</span> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3.5 bg-m3-primary hover:bg-indigo-700 text-m3-on-primary font-bold rounded-xl shadow-sm transition-colors flex justify-center items-center gap-2"><span className="hidden sm:inline">📸</span> Share</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
 
-                                {/* Dual Scroll Container Area */}
-                                <div id="mini-bill-card" className="flex flex-col flex-1 min-h-0 bg-white">
+                                {/* === HIDDEN PRINTABLE RECEIPT === */}
+                                {/* Completely decoupled layout specifically for html2canvas generation. Unconstrained height. */}
+                                <div className="absolute top-[-9999px] left-[-9999px]">
+                                    <div id="printable-receipt-card" className="w-[400px] bg-white flex flex-col font-sans pb-4">
+                                        <div className="bg-m3-primary p-6 text-white text-center">
+                                            <div className="text-xs font-bold uppercase tracking-widest opacity-80 mb-2">{bill.billName || 'SPLIT BREAKDOWN'}</div>
+                                            <h2 className="text-2xl font-black">{pName}'s Share</h2>
+                                        </div>
 
-                                    {/* Sibling A: Scrollable Items List */}
-                                    <div className="p-4 sm:p-5 flex-1 overflow-y-auto min-h-0">
-                                        <div className="space-y-2">
-                                            {getParticipantDetails(viewingParticipant)?.map((item, idx) => (
-                                                <div key={idx} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0">
-                                                    <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
-                                                    <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
-                                                        ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
-                                                    </span>
+                                        <div className="p-6 flex flex-col gap-3 bg-white">
+                                            <div className="border-b-2 border-dashed border-gray-200 pb-2 mb-2 text-left">
+                                                <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Bill Items</span>
+                                            </div>
+                                            {details?.map((item, idx) => (
+                                                <div key={idx} className="flex justify-between text-base py-1">
+                                                    <span className="text-gray-800">{item.name}</span>
+                                                    <span className="font-bold text-gray-900">₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}</span>
                                                 </div>
                                             ))}
-                                            {getParticipantDetails(viewingParticipant)?.length === 0 && (
+                                            {details?.length === 0 && (
                                                 <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
                                             )}
                                         </div>
-                                    </div>
 
-                                    {/* Sibling B: Scrollable Bottom Section (Total + QR + Buttons) */}
-                                    <div className="flex flex-col flex-1 overflow-y-auto min-h-0 bg-gray-50/80 border-t border-gray-200">
-
-                                        <div className="px-4 sm:px-5 py-3 bg-indigo-50/50 border-b border-indigo-100 flex justify-between items-center shrink-0">
-                                            <span className="font-bold text-gray-600 text-sm">Total Payable</span>
-                                            <span className="text-xl sm:text-2xl font-black text-indigo-600">
-                                                ₹{(splitResults[viewingParticipant] || 0).toFixed(2)}
-                                            </span>
+                                        <div className="px-6 py-5 bg-indigo-50 flex justify-between items-center border-y border-indigo-100">
+                                            <span className="font-bold text-indigo-900 text-lg">Total Payable</span>
+                                            <span className="text-2xl font-black text-indigo-700">₹{total}</span>
                                         </div>
 
-                                        {/* UPI QR Code Generation */}
-                                        {isUpiEnabled && upiId && (splitResults[viewingParticipant] || 0) > 0 && (
-                                            <div className="py-5 px-4 flex flex-col items-center gap-2 shrink-0">
-                                                <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider">Scan to Pay</span>
-                                                <div className="bg-white p-2 rounded-xl shadow-sm border border-gray-200">
+                                        {hasQR && (
+                                            <div className="p-8 flex flex-col items-center gap-4 bg-white">
+                                                <span className="text-sm font-bold text-gray-500 uppercase tracking-wider">Scan to Pay using any UPI app</span>
+                                                <div className="p-4 border-2 border-dashed border-gray-300 rounded-2xl bg-white shadow-sm">
                                                     <QRCodeSVG
-                                                        value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill')}&am=${(splitResults[viewingParticipant] || 0).toFixed(2)}&cu=INR`}
-                                                        size={140}
+                                                        value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR`}
+                                                        size={180}
                                                         level="L"
                                                         includeMargin={false}
                                                     />
                                                 </div>
-                                                <span className="text-xs font-bold text-gray-800 text-center truncate w-full max-w-[200px] mt-1">{upiId}</span>
+                                                <span className="text-lg font-bold text-gray-800 mt-2">{upiId}</span>
+                                                <span className="text-sm text-gray-500">{upiName || pName}</span>
                                             </div>
                                         )}
 
-                                        {/* Action Buttons wrapped inside the bottom scrollable section */}
-                                        <div className="p-4 border-t border-gray-200 bg-white flex items-center justify-between gap-2 mt-auto shrink-0">
-                                            <button
-                                                onClick={() => setViewingParticipant(null)}
-                                                className="flex-1 px-2 py-3 text-xs sm:text-sm text-m3-on-surface-variant font-bold hover:bg-m3-surface-variant rounded-xl transition-colors truncate"
-                                            >
-                                                Close
-                                            </button>
-                                            <button
-                                                onClick={async () => {
-                                                    const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
-                                                    const details = getParticipantDetails(viewingParticipant);
-                                                    const total = (splitResults[viewingParticipant] || 0).toFixed(2);
-
-                                                    let text = `*Bill Split for ${pName}*\n`;
-                                                    if (bill.billName) text += `*${bill.billName}*\n\n`;
-                                                    else text += '\n';
-
-                                                    details?.forEach(item => {
-                                                        text += `${item.name}: ₹${Math.abs(item.share).toFixed(2)} ${item.share < 0 ? '(Cr)' : ''}\n`;
-                                                    });
-
-                                                    text += `\n*Total Payable: ₹${total}*\n`;
-
-                                                    if (isUpiEnabled && upiId && Number(total) > 0) {
-                                                        text += `\n*UPI ID*: ${upiId}\n`;
-                                                        text += `*Auto-Pay Link*: upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR\n`;
-                                                    }
-
-                                                    try {
-                                                        await navigator.clipboard.writeText(text);
-                                                        alert('Copied to clipboard! You can paste in WhatsApp now.');
-                                                    } catch (err) {
-                                                        console.error('Failed to copy text: ', err);
-                                                        alert('Failed to copy. Try sharing the image receipt instead.');
-                                                    }
-                                                }}
-                                                className="flex-1 px-2 py-3 bg-m3-surface-variant text-m3-on-surface text-xs sm:text-sm font-bold rounded-xl hover:bg-m3-outline transition-colors flex items-center justify-center gap-1 sm:gap-2 truncate"
-                                            >
-                                                <span className="hidden sm:inline">📋</span> Copy
-                                            </button>
-                                            <button
-                                                onClick={async () => {
-                                                    const pName = bill.participants.find(p => p.id === viewingParticipant)?.name || 'Bill';
-                                                    const blob = await captureReceipt('mini-bill-card');
-                                                    if (blob) {
-                                                        await shareImage(blob, `bill-${pName}.png`, `Bill for ${pName}`);
-                                                    }
-                                                }}
-                                                className="flex-1 px-2 py-3 bg-m3-primary text-m3-on-primary text-xs sm:text-sm font-bold rounded-xl hover:bg-indigo-700 shadow-sm flex items-center justify-center gap-1 sm:gap-2 truncate"
-                                            >
-                                                <span className="hidden sm:inline">📸</span> Share
-                                            </button>
+                                        <div className="p-6 mt-4 text-center text-xs font-medium text-gray-400 border-t border-gray-100 bg-gray-50">
+                                            Generated by Bill Splitter Pro
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
-                        </div>
-                    )
+                        );
+                    })()
                 }
 
                 {/* Settings Modal (kept simple but styled) */}

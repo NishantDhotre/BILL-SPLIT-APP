@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useBillStore } from '../store/useBillStore';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
-
+import { Camera, CameraResultType, CameraSource } from '@capacitor/camera';
 interface UploadBillProps {
     onMissingKey?: () => void;
 }
@@ -59,7 +59,32 @@ export const UploadBill: React.FC<UploadBillProps> = ({ onMissingKey }) => {
             return;
         }
         await Haptics.impact({ style: ImpactStyle.Light });
-        fileInputRef.current?.click();
+
+        try {
+            const image = await Camera.getPhoto({
+                quality: 90,
+                allowEditing: false,
+                resultType: CameraResultType.Uri,
+                source: CameraSource.Prompt // Prompts user to pick from Gallery or Camera
+            });
+
+            if (image.webPath) {
+                // Fetch the image to create a File object
+                const response = await fetch(image.webPath);
+                const blob = await response.blob();
+                const file = new File([blob], 'receipt.jpg', {
+                    type: image.format ? `image/${image.format}` : 'image/jpeg'
+                });
+                await processFile(file);
+            }
+        } catch (e: any) {
+            // User cancelled or plugin not available on web
+            // Note: Capacitor throws 'User cancelled photos app' string error on cancel
+            if (e.message && !e.message.toLowerCase().includes('cancel')) {
+                // Fallback to standard input if Camera plugin fails entirely (like on web without PWA elements)
+                fileInputRef.current?.click();
+            }
+        }
     };
 
     return (

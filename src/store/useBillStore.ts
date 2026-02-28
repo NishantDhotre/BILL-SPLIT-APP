@@ -278,7 +278,12 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                     };
                 });
 
-                const updatedItems = [...state.bill.items, ...newItems];
+                let currentItems = state.bill.items;
+                if (currentItems.length === 1 && currentItems[0].name === 'Start by adding an item') {
+                    currentItems = [];
+                }
+
+                const updatedItems = [...currentItems, ...newItems];
                 return {
                     bill: {
                         ...state.bill,
@@ -337,7 +342,12 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                     };
                 });
 
-                const updatedItems = [...state.bill.items, ...newItems];
+                let currentItems = state.bill.items;
+                if (currentItems.length === 1 && currentItems[0].name === 'Start by adding an item') {
+                    currentItems = [];
+                }
+
+                const updatedItems = [...currentItems, ...newItems];
                 return {
                     bill: {
                         ...state.bill,
