@@ -120,7 +120,7 @@ export const Dashboard: React.FC = () => {
                 <div className="relative flex flex-col md:flex-row md:items-center justify-between gap-4 animate-enter">
                     <div className="space-y-1">
                         <h1 className="text-4xl md:text-5xl font-display font-extrabold text-m3-on-surface tracking-tight">
-                            Bill Splitter <span className="text-m3-primary">Pro</span>
+                            Bill Splitter <span className="text-brand-gradient">PRO</span>
                         </h1>
                         <p className="text-m3-on-surface-variant text-lg font-medium">Split bills fairly, effortlessly.</p>
                     </div>
@@ -152,9 +152,8 @@ export const Dashboard: React.FC = () => {
                             onClick={() => setIsSettingsOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-m3-surface-variant text-m3-on-surface-variant hover:bg-m3-outline hover:text-m3-primary transition-all text-sm font-semibold"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                                <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" />
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
+                                <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 00-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.905 1.905 0 00-2.207.74l-1.122 1.944a1.904 1.904 0 00.336 2.3l1.323 1.13c.14.12.22.285.22.46v.831c0 .175-.08.34-.22.46l-1.323 1.13a1.904 1.904 0 00-.336 2.3l1.122 1.943a1.905 1.905 0 002.207.74l1.018-.382c.116-.043.284-.032.45.083.3.208.625.39.986.57.182.088.277.228.297.349l.178 1.071c.151.904.933 1.567 1.85 1.567h2.244c.917 0 1.699-.663 1.85-1.567l.178-1.071c.02-.12.115-.26.297-.349.361-.18.686-.362.986-.57.166-.115.334-.126.45-.083l1.018.382a1.905 1.905 0 002.207-.74l1.122-1.943a1.904 1.904 0 00-.336-2.3l-1.323-1.13a.625.625 0 01-.22-.46v-.831c0-.175.08-.34.22-.46l1.323-1.13a1.904 1.904 0 00.336-2.3l-1.122-1.944a1.905 1.905 0 00-2.207-.74l-1.018.382c-.116.043-.284.032-.45-.083a7.493 7.493 0 00-.986-.57c-.182-.088-.277-.228-.297-.349l-.178-1.071a1.888 1.888 0 00-1.85-1.567h-2.244zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd" />
                             </svg>
                             <span className="hidden sm:inline">Settings</span>
                         </button>
@@ -403,88 +402,90 @@ export const Dashboard: React.FC = () => {
 
                                     {hasQR ? (
                                         /* DESIGN 1: WITH QR CODE */
-                                        <div className="flex flex-col flex-1 min-h-0 bg-white">
+                                        <div className="flex flex-col flex-1 min-h-0 bg-m3-surface">
                                             {/* Scrollable Items */}
                                             <div className="flex-1 overflow-y-auto p-4 min-h-[100px]">
                                                 <div className="space-y-2">
                                                     {details?.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between text-sm py-2 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors px-1">
-                                                            <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
-                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                                                        <div key={idx} className="flex justify-between text-sm py-2 border-b border-m3-outline-variant last:border-0 hover:bg-m3-surface-variant transition-colors px-1">
+                                                            <span className="text-m3-on-surface font-medium truncate pr-3">{item.name}</span>
+                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-m3-tertiary' : 'text-m3-on-surface'}`}>
                                                                 ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
                                                             </span>
                                                         </div>
                                                     ))}
                                                     {details?.length === 0 && (
-                                                        <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
+                                                        <p className="text-center text-m3-on-surface-variant py-4">No items assigned yet.</p>
                                                     )}
                                                 </div>
                                             </div>
 
                                             {/* Fixed Footer with QR */}
-                                            <div className="shrink-0 border-t border-gray-200 bg-gray-50 flex flex-col">
-                                                <div className="flex justify-between items-center px-5 py-3 bg-indigo-50 border-b border-indigo-100">
-                                                    <span className="font-bold text-indigo-900 text-sm">Total Payable</span>
-                                                    <span className="text-xl font-black text-indigo-700">₹{total}</span>
+                                            <div className="shrink-0 border-t border-m3-outline bg-m3-surface-variant flex flex-col">
+                                                <div className="flex justify-between items-center px-5 py-3 bg-m3-primary-container border-b border-m3-outline-variant">
+                                                    <span className="font-bold text-m3-on-primary-container text-sm">Total Payable</span>
+                                                    <span className="text-xl font-black text-m3-primary">₹{total}</span>
                                                 </div>
                                                 {/* Horizontal QR Section to save vertical space */}
-                                                <div className="px-5 py-4 flex items-center justify-between gap-3 bg-white">
+                                                <div className="px-5 py-4 flex items-center justify-between gap-3 bg-m3-surface">
                                                     <div className="flex flex-col items-start max-w-[150px]">
-                                                        <span className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-wider mb-1">Scan to Pay</span>
-                                                        <span className="text-sm font-bold text-gray-900 truncate w-full">{upiId}</span>
-                                                        <span className="text-xs text-gray-500 truncate w-full">{upiName || pName}</span>
+                                                        <span className="text-[10px] sm:text-xs font-bold text-m3-on-surface-variant uppercase tracking-wider mb-1">Scan to Pay</span>
+                                                        <span className="text-sm font-bold text-m3-on-surface truncate w-full">{upiId}</span>
+                                                        <span className="text-xs text-m3-on-surface-variant truncate w-full">{upiName || pName}</span>
                                                     </div>
-                                                    <div className="p-1.5 border border-gray-200 rounded-lg shadow-sm shrink-0 bg-white">
+                                                    <div className="p-1.5 border border-m3-outline rounded-lg shadow-sm shrink-0 bg-white">
                                                         <QRCodeSVG
                                                             value={`upi://pay?pa=${encodeURIComponent(upiId)}&pn=${encodeURIComponent(upiName || pName)}&am=${total}&cu=INR`}
                                                             size={76}
                                                             level="L"
                                                             includeMargin={false}
+                                                            bgColor="#ffffff"
+                                                            fgColor="#000000"
                                                         />
                                                     </div>
                                                 </div>
                                                 {/* Action Buttons */}
-                                                <div className="p-3 flex gap-2 border-t border-gray-100 bg-white">
-                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl text-xs sm:text-sm transition-colors">Close</button>
-                                                    <button onClick={copyToClipboard} className="flex-1 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl text-xs sm:text-sm transition-colors flex justify-center items-center gap-1"><span className="hidden sm:inline">📋</span> Copy</button>
-                                                    <button onClick={shareImageAction} className="flex-1 py-3 bg-m3-primary hover:bg-indigo-700 text-m3-on-primary font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-colors flex justify-center items-center gap-1"><span className="hidden sm:inline">📸</span> Share</button>
+                                                <div className="p-3 flex gap-2 border-t border-m3-outline-variant bg-m3-surface">
+                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3 bg-m3-surface-variant hover:opacity-80 text-m3-on-surface-variant font-bold rounded-xl text-xs sm:text-sm transition-all border border-m3-outline-variant">Close</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl text-xs sm:text-sm transition-all flex justify-center items-center gap-1 border border-m3-outline-variant"><span className="hidden sm:inline">📋</span> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-all flex justify-center items-center gap-1"><span className="hidden sm:inline">📸</span> Share</button>
                                                 </div>
                                             </div>
                                         </div>
                                     ) : (
                                         /* DESIGN 2: NO QR CODE */
-                                        <div className="flex flex-col flex-1 min-h-0 bg-white">
+                                        <div className="flex flex-col flex-1 min-h-0 bg-m3-surface">
                                             {/* Scrollable Items */}
                                             <div className="flex-1 overflow-y-auto p-5 min-h-[100px]">
-                                                <div className="border-b-2 border-dashed border-gray-200 pb-3 mb-3">
-                                                    <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">Bill Items</span>
+                                                <div className="border-b-2 border-dashed border-m3-outline-variant pb-3 mb-3">
+                                                    <span className="text-xs font-bold text-m3-on-surface-variant uppercase tracking-widest">Bill Items</span>
                                                 </div>
                                                 <div className="space-y-3">
                                                     {details?.map((item, idx) => (
-                                                        <div key={idx} className="flex justify-between text-sm sm:text-base border-b border-gray-100 pb-2 last:border-0 last:pb-0">
-                                                            <span className="text-gray-800 font-medium truncate pr-3">{item.name}</span>
-                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-emerald-600' : 'text-gray-900'}`}>
+                                                        <div key={idx} className="flex justify-between text-sm sm:text-base border-b border-m3-outline-variant pb-2 last:border-0 last:pb-0">
+                                                            <span className="text-m3-on-surface font-medium truncate pr-3">{item.name}</span>
+                                                            <span className={`font-bold whitespace-nowrap ${item.share < 0 ? 'text-m3-tertiary' : 'text-m3-on-surface'}`}>
                                                                 ₹{Math.abs(item.share).toFixed(2)} {item.share < 0 ? '(Cr)' : ''}
                                                             </span>
                                                         </div>
                                                     ))}
                                                     {details?.length === 0 && (
-                                                        <p className="text-center text-gray-400 py-4">No items assigned yet.</p>
+                                                        <p className="text-center text-m3-on-surface-variant py-4">No items assigned yet.</p>
                                                     )}
                                                 </div>
                                             </div>
 
                                             {/* Fixed Footer WITHOUT QR */}
-                                            <div className="shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-gray-100 z-10">
-                                                <div className="p-5 flex flex-col bg-gradient-to-tr from-indigo-50/50 to-white">
-                                                    <span className="text-xs font-bold text-indigo-600 uppercase tracking-wider mb-1">Total Amount Due</span>
-                                                    <span className="text-3xl font-black text-indigo-600 leading-none">₹{total}</span>
+                                            <div className="shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] border-t border-m3-outline z-10">
+                                                <div className="p-5 flex flex-col bg-m3-surface-variant">
+                                                    <span className="text-xs font-bold text-m3-primary uppercase tracking-wider mb-1">Total Amount Due</span>
+                                                    <span className="text-3xl font-black text-m3-primary leading-none">₹{total}</span>
                                                 </div>
                                                 {/* Action Buttons */}
-                                                <div className="p-4 flex gap-3 bg-white border-t border-gray-100">
-                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3.5 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold rounded-xl transition-colors">Close</button>
-                                                    <button onClick={copyToClipboard} className="flex-1 py-3.5 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 font-bold rounded-xl transition-colors flex justify-center items-center gap-2"><span className="hidden sm:inline">📋</span> Copy</button>
-                                                    <button onClick={shareImageAction} className="flex-1 py-3.5 bg-m3-primary hover:bg-indigo-700 text-m3-on-primary font-bold rounded-xl shadow-sm transition-colors flex justify-center items-center gap-2"><span className="hidden sm:inline">📸</span> Share</button>
+                                                <div className="p-4 flex gap-3 bg-m3-surface border-t border-m3-outline-variant">
+                                                    <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3.5 bg-m3-surface-variant hover:opacity-80 text-m3-on-surface-variant font-bold rounded-xl transition-all border border-m3-outline-variant">Close</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3.5 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl transition-all flex justify-center items-center gap-2 border border-m3-outline-variant"><span className="hidden sm:inline">📋</span> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3.5 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm transition-all flex justify-center items-center gap-2"><span className="hidden sm:inline">📸</span> Share</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -548,75 +549,77 @@ export const Dashboard: React.FC = () => {
                 }
 
                 {/* Settings Modal (kept simple but styled) */}
-                {isSettingsOpen && (
-                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-                        onClick={() => setIsSettingsOpen(false)}>
-                        <div className="bg-m3-surface rounded-2xl w-full max-w-md p-6 shadow-elevation-3 space-y-6 animate-enter max-h-[90vh] overflow-y-auto outline-none" onClick={e => e.stopPropagation()}>
+                {
+                    isSettingsOpen && (
+                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+                            onClick={() => setIsSettingsOpen(false)}>
+                            <div className="bg-m3-surface rounded-2xl w-full max-w-md p-6 shadow-elevation-3 space-y-6 animate-enter max-h-[90vh] overflow-y-auto outline-none" onClick={e => e.stopPropagation()}>
 
-                            {/* App Settings Section */}
-                            <div className="space-y-4">
-                                <h2 className="text-xl font-bold text-m3-on-surface">Settings</h2>
-                                <div className="space-y-2">
-                                    <label className="text-sm font-bold text-m3-on-surface-variant block">Gemini API Key</label>
-                                    <p className="text-xs text-m3-on-surface-variant mb-2">Required for AI receipt scanning.</p>
-                                    <input
-                                        type="password"
-                                        value={tempKey}
-                                        onChange={(e) => setTempKey(e.target.value)}
-                                        placeholder="Paste API Key here..."
-                                        className="w-full px-4 py-3 border border-m3-outline rounded-xl focus:border-m3-primary focus:ring-1 focus:ring-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface"
-                                    />
-                                </div>
-                            </div>
-
-                            <hr className="border-m3-outline-variant" />
-
-                            {/* UPI Setup Section */}
-                            <div className="space-y-4">
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-bold text-m3-on-surface">Enable UPI QR</h3>
-                                        <p className="text-xs text-m3-on-surface-variant">Show QR code tailored for each participant's share.</p>
+                                {/* App Settings Section */}
+                                <div className="space-y-4">
+                                    <h2 className="text-xl font-bold text-m3-on-surface">Settings</h2>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-bold text-m3-on-surface-variant block">Gemini API Key</label>
+                                        <p className="text-xs text-m3-on-surface-variant mb-2">Required for AI receipt scanning.</p>
+                                        <input
+                                            type="password"
+                                            value={tempKey}
+                                            onChange={(e) => setTempKey(e.target.value)}
+                                            placeholder="Paste API Key here..."
+                                            className="w-full px-4 py-3 border border-m3-outline rounded-xl focus:border-m3-primary focus:ring-1 focus:ring-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface"
+                                        />
                                     </div>
-                                    <label className="relative inline-flex items-center cursor-pointer scale-90">
-                                        <input type="checkbox" className="sr-only peer" checked={tempUpiEnabled} onChange={(e) => setTempUpiEnabled(e.target.checked)} />
-                                        <div className="w-11 h-6 bg-m3-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-m3-primary"></div>
-                                    </label>
                                 </div>
 
-                                {tempUpiEnabled && (
-                                    <div className="space-y-3 animate-enter">
-                                        <div>
-                                            <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">UPI ID</label>
-                                            <input
-                                                type="text"
-                                                value={tempUpiId}
-                                                onChange={(e) => setTempUpiId(e.target.value)}
-                                                placeholder="e.g. name@upi"
-                                                className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">Payee Name (Optional)</label>
-                                            <input
-                                                type="text"
-                                                value={tempUpiName}
-                                                onChange={(e) => setTempUpiName(e.target.value)}
-                                                placeholder="e.g. John Doe"
-                                                className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
-                                            />
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                                <hr className="border-m3-outline-variant" />
 
-                            <div className="flex justify-end gap-3 pt-4">
-                                <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-m3-on-surface-variant hover:text-m3-on-surface">Cancel</button>
-                                <button onClick={handleSaveSettings} className="px-6 py-2 bg-m3-primary text-m3-on-primary font-bold rounded-full hover:bg-indigo-700">Save</button>
+                                {/* UPI Setup Section */}
+                                <div className="space-y-4">
+                                    <div className="flex items-center justify-between">
+                                        <div>
+                                            <h3 className="font-bold text-m3-on-surface">Enable UPI QR</h3>
+                                            <p className="text-xs text-m3-on-surface-variant">Show QR code tailored for each participant's share.</p>
+                                        </div>
+                                        <label className="relative inline-flex items-center cursor-pointer scale-90">
+                                            <input type="checkbox" className="sr-only peer" checked={tempUpiEnabled} onChange={(e) => setTempUpiEnabled(e.target.checked)} />
+                                            <div className="w-11 h-6 bg-m3-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-m3-primary"></div>
+                                        </label>
+                                    </div>
+
+                                    {tempUpiEnabled && (
+                                        <div className="space-y-3 animate-enter">
+                                            <div>
+                                                <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">UPI ID</label>
+                                                <input
+                                                    type="text"
+                                                    value={tempUpiId}
+                                                    onChange={(e) => setTempUpiId(e.target.value)}
+                                                    placeholder="e.g. name@upi"
+                                                    className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
+                                                />
+                                            </div>
+                                            <div>
+                                                <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">Payee Name (Optional)</label>
+                                                <input
+                                                    type="text"
+                                                    value={tempUpiName}
+                                                    onChange={(e) => setTempUpiName(e.target.value)}
+                                                    placeholder="e.g. John Doe"
+                                                    className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="flex justify-end gap-3 pt-4">
+                                    <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-m3-on-surface-variant hover:text-m3-on-surface">Cancel</button>
+                                    <button onClick={handleSaveSettings} className="px-6 py-2 bg-m3-primary text-m3-on-primary font-bold rounded-full hover:bg-indigo-700">Save</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                )}
+                    )
+                }
 
                 <ManualImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
                 <HistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
