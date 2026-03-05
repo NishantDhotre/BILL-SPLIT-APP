@@ -7,7 +7,18 @@ const getState = () => useBillStore.getState();
 
 describe('useBillStore Auto-Selection Logic', () => {
     beforeEach(() => {
-        // Reset store to initial state
+        // Mock localStorage for Zustand persist middleware
+        import('vitest').then(({ vi }) => {
+            vi.stubGlobal('localStorage', {
+                getItem: () => null,
+                setItem: () => null,
+                removeItem: () => null,
+                clear: () => null,
+            });
+        });
+
+        // Reset store to initial state with explicit participants
+        // (default participants are now profile-based, so we set them explicitly for tests)
         const initialBill = {
             participants: [
                 { id: 'p1', name: 'Alice' },
@@ -24,7 +35,6 @@ describe('useBillStore Auto-Selection Logic', () => {
                 splitResults: {},
                 isValid: true
             });
-            // Re-initialize with setBill to trigger calcs if needed, but setState is enough for raw state
         });
     });
 

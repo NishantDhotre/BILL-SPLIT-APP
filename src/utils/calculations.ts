@@ -3,7 +3,7 @@ import type { BillState, Item } from '../types';
 /**
  * Validates an item based on its split mode.
  * EQUAL: At least one participant must be checked.
- * UNIT: All quantities must be integers >= 0, and total units >= 1.
+ * UNIT: Values must be multiples of 0.5 (≥ 0), total units must exactly equal item quantity.
  */
 export function validateItem(item: Item): boolean {
     if (item.splitMode === 'EQUAL') {
@@ -18,12 +18,14 @@ export function validateItem(item: Item): boolean {
 
         for (const val of consumptionValues) {
             if (typeof val !== 'number') return false; // Should be number for UNIT
-            if (!Number.isInteger(val) || val < 0) return false; // Must be integer >= 0
+            if (val < 0) return false; // Must be >= 0
+            // Must be a multiple of 0.5 (i.e. 0, 0.5, 1, 1.5, 2, ...)
+            if ((val * 2) % 1 !== 0) return false;
             totalUnits += val;
         }
 
-        // Must assign at least 1 unit AND not exceed available quantity
-        return totalUnits >= 1 && totalUnits <= maxQuantity;
+        // Total units must exactly equal the item's quantity
+        return totalUnits >= 1 && totalUnits === maxQuantity;
     }
 
     return false;
@@ -116,28 +118,32 @@ export function calculateBillSplit(bill: BillState): Record<string, number> {
         });
     });
 
-    // Apply Global Discount
-    const participantCount = bill.participants.length;
-    const discountAmount = bill.discount || 0;
+    // Create a static snapshot of what everyone owes purely based on items BEFORE tax/discount
+    const baseSubtotals = { ...totals };
+    const globalSubtotal = bill.items.reduce((sum, item) => sum + item.price, 0);
 
-    if (participantCount > 0 && discountAmount > 0) {
-        const discountPerPerson = discountAmount / participantCount;
+    // Apply Global Discount proportionally
+    const discountAmount = bill.discount || 0;
+    if (globalSubtotal > 0 && discountAmount > 0) {
         bill.participants.forEach((p) => {
             if (totals[p.id] !== undefined) {
-                totals[p.id] -= discountPerPerson;
+                // Calculate their exact percentage of the bare items subtotal
+                const proportion = baseSubtotals[p.id] / globalSubtotal;
+                // Subtract that exact percentage of the total discount
+                totals[p.id] -= (discountAmount * proportion);
             }
         });
     }
 
-
-
-    // Apply Global Tax
+    // Apply Global Tax proportionally
     const taxAmount = bill.tax || 0;
-    if (participantCount > 0 && taxAmount > 0) {
-        const taxPerPerson = taxAmount / participantCount;
+    if (globalSubtotal > 0 && taxAmount > 0) {
         bill.participants.forEach((p) => {
             if (totals[p.id] !== undefined) {
-                totals[p.id] += taxPerPerson;
+                // Calculate their exact percentage of the bare items subtotal (same as discount)
+                const proportion = baseSubtotals[p.id] / globalSubtotal;
+                // Add that exact percentage of the total tax
+                totals[p.id] += (taxAmount * proportion);
             }
         });
     }

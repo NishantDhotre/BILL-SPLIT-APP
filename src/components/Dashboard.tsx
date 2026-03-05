@@ -9,6 +9,8 @@ import { calculateItemSplit } from '../utils/calculations';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
 import { QRCodeSVG } from 'qrcode.react';
 import { HistoryModal } from './HistoryModal';
+import { ProfileModal } from './ProfileModal';
+import { ApiKeyPrompt } from './ApiKeyPrompt';
 
 export const Dashboard: React.FC = () => {
     const {
@@ -24,48 +26,30 @@ export const Dashboard: React.FC = () => {
         setDiscount,
         setTax,
         setBillName,
-        userApiKey,
-        setUserApiKey,
         isUpiEnabled,
         upiId,
         upiName,
-        setUpiConfig,
         saveCurrentBill,
-        clearCurrentBill
+        clearCurrentBill,
+        userProfile,
+        isProfileSetup
     } = useBillStore();
 
-    const [isSettingsOpen, setIsSettingsOpen] = React.useState(false);
+    const [isProfileOpen, setIsProfileOpen] = React.useState(false);
     const [isImportOpen, setIsImportOpen] = React.useState(false);
     const [isHistoryOpen, setIsHistoryOpen] = React.useState(false);
+    const [isApiKeyPromptOpen, setIsApiKeyPromptOpen] = React.useState(false);
 
-    // Temp states for settings modal
-    const [tempKey, setTempKey] = React.useState('');
-    const [tempUpiEnabled, setTempUpiEnabled] = React.useState(false);
-    const [tempUpiId, setTempUpiId] = React.useState('');
-    const [tempUpiName, setTempUpiName] = React.useState('');
-
-    // Load current settings into temp state when modal opens
+    // Auto-open Profile on first launch if name not set
     React.useEffect(() => {
-        if (isSettingsOpen) {
-            setTempKey(userApiKey || '');
-            setTempUpiEnabled(isUpiEnabled);
-            setTempUpiId(upiId || '');
-            setTempUpiName(upiName || '');
+        if (!isProfileSetup) {
+            setIsProfileOpen(true);
         }
-    }, [isSettingsOpen, userApiKey, isUpiEnabled, upiId, upiName]);
+    }, [isProfileSetup]);
 
-    // Auto-prompt for key if missing
-    React.useEffect(() => {
-        if (!userApiKey) {
-            setIsSettingsOpen(true);
-        }
-    }, [userApiKey]);
-
-    const handleSaveSettings = () => {
-        setUserApiKey(tempKey);
-        setUpiConfig(tempUpiEnabled, tempUpiId, tempUpiName);
-        setIsSettingsOpen(false);
-    };
+    const importPref = userProfile.importPreference || 'both';
+    const showAiImport = importPref === 'ai' || importPref === 'both';
+    const showJsonImport = importPref === 'json' || importPref === 'both';
 
     const handleSaveBill = async () => {
         saveCurrentBill();
@@ -97,15 +81,19 @@ export const Dashboard: React.FC = () => {
             return { name: item.name, share };
         }).filter(i => Math.abs(i.share) > 0.001);
 
-        // Calculate and add Tax & Discount shares
-        const participantCount = bill.participants.length;
-        if (participantCount > 0) {
+        // Calculate and add Tax & Discount shares proportionally
+        const globalSubtotal = bill.items.reduce((sum, item) => sum + item.price, 0);
+
+        if (globalSubtotal > 0) {
+            const participantBaseTotal = details.reduce((sum, item) => sum + item.share, 0);
+            const proportion = participantBaseTotal / globalSubtotal;
+
             if (bill.tax > 0) {
-                details.push({ name: 'Tax / Charges', share: bill.tax / participantCount });
+                details.push({ name: 'Tax / Charges', share: bill.tax * proportion });
             }
             if (bill.discount > 0) {
                 // Negative share for discount so it displays properly and can be subtracted
-                details.push({ name: 'Discount', share: -(bill.discount / participantCount) });
+                details.push({ name: 'Discount', share: -(bill.discount * proportion) });
             }
         }
 
@@ -137,25 +125,25 @@ export const Dashboard: React.FC = () => {
                         </button>
                         <button
                             onClick={handleSaveBill}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-m3-outline text-emerald-600 hover:bg-emerald-50 transition-all text-sm font-semibold"
+                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-m3-outline text-m3-tertiary hover:bg-m3-tertiary-container transition-all text-sm font-semibold"
                         >
                             <span>Save Bill</span>
                         </button>
                         <button
                             onClick={handleClearBill}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-m3-outline text-red-600 hover:bg-red-50 transition-all text-sm font-semibold"
+                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-m3-outline text-m3-error hover:bg-m3-error-container transition-all text-sm font-semibold"
                         >
                             <span>Clear</span>
                         </button>
 
                         <button
-                            onClick={() => setIsSettingsOpen(true)}
+                            onClick={() => setIsProfileOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-m3-surface-variant text-m3-on-surface-variant hover:bg-m3-outline hover:text-m3-primary transition-all text-sm font-semibold"
                         >
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5">
-                                <path fillRule="evenodd" d="M11.078 2.25c-.917 0-1.699.663-1.85 1.567L9.05 4.889c-.02.12-.115.26-.297.348a7.493 7.493 0 00-.986.57c-.166.115-.334.126-.45.083L6.3 5.508a1.905 1.905 0 00-2.207.74l-1.122 1.944a1.904 1.904 0 00.336 2.3l1.323 1.13c.14.12.22.285.22.46v.831c0 .175-.08.34-.22.46l-1.323 1.13a1.904 1.904 0 00-.336 2.3l1.122 1.943a1.905 1.905 0 002.207.74l1.018-.382c.116-.043.284-.032.45.083.3.208.625.39.986.57.182.088.277.228.297.349l.178 1.071c.151.904.933 1.567 1.85 1.567h2.244c.917 0 1.699-.663 1.85-1.567l.178-1.071c.02-.12.115-.26.297-.349.361-.18.686-.362.986-.57.166-.115.334-.126.45-.083l1.018.382a1.905 1.905 0 002.207-.74l1.122-1.943a1.904 1.904 0 00-.336-2.3l-1.323-1.13a.625.625 0 01-.22-.46v-.831c0-.175.08-.34.22-.46l1.323-1.13a1.904 1.904 0 00.336-2.3l-1.122-1.944a1.905 1.905 0 00-2.207-.74l-1.018.382c-.116.043-.284.032-.45-.083a7.493 7.493 0 00-.986-.57c-.182-.088-.277-.228-.297-.349l-.178-1.071a1.888 1.888 0 00-1.85-1.567h-2.244zM12 15.75a3.75 3.75 0 100-7.5 3.75 3.75 0 000 7.5z" clipRule="evenodd" />
-                            </svg>
-                            <span className="hidden sm:inline">Settings</span>
+                            <div className="h-6 w-6 rounded-full bg-m3-primary text-m3-on-primary flex items-center justify-center text-xs font-bold">
+                                {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : '👤'}
+                            </div>
+                            <span className="hidden sm:inline">{userProfile.name || 'Profile'}</span>
                         </button>
                     </div>
                 </div>
@@ -176,7 +164,7 @@ export const Dashboard: React.FC = () => {
                 {/* Upload Error Warning */}
                 {
                     uploadError && (
-                        <div className="bg-amber-100 text-amber-900 border border-amber-200 rounded-xl p-4 flex items-start gap-3 shadow-sm">
+                        <div className="bg-m3-tertiary-container text-m3-on-tertiary-container border border-m3-tertiary rounded-xl p-4 flex items-start gap-3 shadow-sm">
                             <span className="text-xl">🛑</span>
                             <div>
                                 <p className="font-bold">Upload Failed</p>
@@ -206,17 +194,21 @@ export const Dashboard: React.FC = () => {
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                 <h2 className="text-2xl font-display font-bold text-m3-on-surface">Items</h2>
                                 <div className="flex flex-wrap gap-3">
-                                    <UploadBill onMissingKey={() => setIsSettingsOpen(true)} />
+                                    {showAiImport && (
+                                        <UploadBill onMissingKey={() => setIsApiKeyPromptOpen(true)} />
+                                    )}
 
-                                    <button
-                                        onClick={() => setIsImportOpen(true)}
-                                        className="h-12 px-6 rounded-xl border border-m3-outline text-m3-on-surface hover:bg-m3-surface-variant hover:border-m3-outline-variant font-semibold transition-all flex items-center gap-2"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
-                                            <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-                                        </svg>
-                                        Import JSON
-                                    </button>
+                                    {showJsonImport && (
+                                        <button
+                                            onClick={() => setIsImportOpen(true)}
+                                            className="h-12 px-6 rounded-xl border border-m3-outline text-m3-on-surface hover:bg-m3-surface-variant hover:border-m3-outline-variant font-semibold transition-all flex items-center gap-2"
+                                        >
+                                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-5 h-5">
+                                                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                                            </svg>
+                                            Import JSON
+                                        </button>
+                                    )}
 
                                     <button
                                         onClick={addItem}
@@ -243,7 +235,7 @@ export const Dashboard: React.FC = () => {
                     <div className="lg:col-span-4 space-y-6 animate-enter delay-200">
 
                         {/* Summary Card */}
-                        <div className="bg-m3-surface rounded-2xl p-6 shadow-elevation-2 border border-m3-outline-variant space-y-6 sticky top-6">
+                        <div className="bg-m3-surface rounded-2xl p-6 shadow-elevation-2 border border-m3-outline-variant space-y-6">
                             <div id="summary-card" className="space-y-4 bg-m3-surface p-2 rounded-xl">
                                 <input
                                     type="text"
@@ -548,79 +540,8 @@ export const Dashboard: React.FC = () => {
                     })()
                 }
 
-                {/* Settings Modal (kept simple but styled) */}
-                {
-                    isSettingsOpen && (
-                        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
-                            onClick={() => setIsSettingsOpen(false)}>
-                            <div className="bg-m3-surface rounded-2xl w-full max-w-md p-6 shadow-elevation-3 space-y-6 animate-enter max-h-[90vh] overflow-y-auto outline-none" onClick={e => e.stopPropagation()}>
-
-                                {/* App Settings Section */}
-                                <div className="space-y-4">
-                                    <h2 className="text-xl font-bold text-m3-on-surface">Settings</h2>
-                                    <div className="space-y-2">
-                                        <label className="text-sm font-bold text-m3-on-surface-variant block">Gemini API Key</label>
-                                        <p className="text-xs text-m3-on-surface-variant mb-2">Required for AI receipt scanning.</p>
-                                        <input
-                                            type="password"
-                                            value={tempKey}
-                                            onChange={(e) => setTempKey(e.target.value)}
-                                            placeholder="Paste API Key here..."
-                                            className="w-full px-4 py-3 border border-m3-outline rounded-xl focus:border-m3-primary focus:ring-1 focus:ring-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface"
-                                        />
-                                    </div>
-                                </div>
-
-                                <hr className="border-m3-outline-variant" />
-
-                                {/* UPI Setup Section */}
-                                <div className="space-y-4">
-                                    <div className="flex items-center justify-between">
-                                        <div>
-                                            <h3 className="font-bold text-m3-on-surface">Enable UPI QR</h3>
-                                            <p className="text-xs text-m3-on-surface-variant">Show QR code tailored for each participant's share.</p>
-                                        </div>
-                                        <label className="relative inline-flex items-center cursor-pointer scale-90">
-                                            <input type="checkbox" className="sr-only peer" checked={tempUpiEnabled} onChange={(e) => setTempUpiEnabled(e.target.checked)} />
-                                            <div className="w-11 h-6 bg-m3-surface-variant peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-m3-primary"></div>
-                                        </label>
-                                    </div>
-
-                                    {tempUpiEnabled && (
-                                        <div className="space-y-3 animate-enter">
-                                            <div>
-                                                <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">UPI ID</label>
-                                                <input
-                                                    type="text"
-                                                    value={tempUpiId}
-                                                    onChange={(e) => setTempUpiId(e.target.value)}
-                                                    placeholder="e.g. name@upi"
-                                                    className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
-                                                />
-                                            </div>
-                                            <div>
-                                                <label className="text-xs font-bold text-m3-on-surface-variant block mb-1">Payee Name (Optional)</label>
-                                                <input
-                                                    type="text"
-                                                    value={tempUpiName}
-                                                    onChange={(e) => setTempUpiName(e.target.value)}
-                                                    placeholder="e.g. John Doe"
-                                                    className="w-full px-4 py-2 border border-m3-outline rounded-xl focus:border-m3-primary focus:outline-none bg-m3-surface text-m3-on-surface text-sm"
-                                                />
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                <div className="flex justify-end gap-3 pt-4">
-                                    <button onClick={() => setIsSettingsOpen(false)} className="px-4 py-2 font-bold text-m3-on-surface-variant hover:text-m3-on-surface">Cancel</button>
-                                    <button onClick={handleSaveSettings} className="px-6 py-2 bg-m3-primary text-m3-on-primary font-bold rounded-full hover:bg-indigo-700">Save</button>
-                                </div>
-                            </div>
-                        </div>
-                    )
-                }
-
+                <ProfileModal isOpen={isProfileOpen} onClose={() => setIsProfileOpen(false)} />
+                <ApiKeyPrompt isOpen={isApiKeyPromptOpen} onClose={() => setIsApiKeyPromptOpen(false)} />
                 <ManualImportModal isOpen={isImportOpen} onClose={() => setIsImportOpen(false)} />
                 <HistoryModal isOpen={isHistoryOpen} onClose={() => setIsHistoryOpen(false)} />
 

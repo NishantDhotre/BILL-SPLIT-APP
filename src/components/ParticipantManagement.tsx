@@ -40,10 +40,12 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
                                 await Haptics.impact({ style: ImpactStyle.Light });
                                 onRemoveParticipant(p.id);
                             }}
-                            className="w-6 h-6 flex items-center justify-center rounded-full text-m3-on-secondary-container/60 hover:text-m3-on-error hover:bg-m3-error transition-colors ml-1"
+                            className="w-5 h-5 flex items-center justify-center rounded-full text-m3-on-secondary-container/60 hover:text-m3-on-error hover:bg-m3-error transition-colors ml-1"
                             aria-label={`Remove ${p.name}`}
                         >
-                            ×
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-3 h-3">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
                         </button>
                     </div>
                 ))}

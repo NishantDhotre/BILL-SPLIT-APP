@@ -1,13 +1,7 @@
-/// <reference types="vitest" />
-import { defineConfig } from 'vitest/config'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: './', // Ensure relative paths for APK/Cordova/Capacitor
-  plugins: [react()],
-  test: {
-    globals: true,
-    environment: 'node',
-  },
+    plugins: [react()],
 })

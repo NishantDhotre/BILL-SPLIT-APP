@@ -48,6 +48,30 @@ describe('Core Engine Tests', () => {
             };
             expect(validateItem(item)).toBe(false);
         });
+
+        it('should validate UNIT split with 0.5 fractions', () => {
+            const item: Item = {
+                id: 'i1', name: 'Roti', price: 60, quantity: 3, splitMode: 'UNIT',
+                consumption: { p1: 1.5, p2: 1.5 } // Total 3 === quantity
+            };
+            expect(validateItem(item)).toBe(true);
+        });
+
+        it('should INVALIDATE UNIT split with non-0.5 fractions (e.g. 0.3)', () => {
+            const item: Item = {
+                id: 'i1', name: 'Roti', price: 60, quantity: 3, splitMode: 'UNIT',
+                consumption: { p1: 0.3, p2: 2.7 }
+            };
+            expect(validateItem(item)).toBe(false);
+        });
+
+        it('should INVALIDATE UNIT split when total units ≠ item quantity', () => {
+            const item: Item = {
+                id: 'i1', name: 'Roti', price: 60, quantity: 3, splitMode: 'UNIT',
+                consumption: { p1: 1, p2: 1 } // Total 2, but quantity is 3
+            };
+            expect(validateItem(item)).toBe(false);
+        });
     });
 
     describe('Step 1.2 Scenarios', () => {
@@ -63,7 +87,7 @@ describe('Core Engine Tests', () => {
 
         it('Unit split (1 vs 2 rotis)', () => {
             const item: Item = {
-                id: 'i2', name: 'Roti', price: 60, quantity: 1, splitMode: 'UNIT',
+                id: 'i2', name: 'Roti', price: 60, quantity: 3, splitMode: 'UNIT',
                 consumption: { p1: 1, p2: 2 } // Total 3 items. Cost/unit = 20.
             };
             const split = calculateItemSplit(item);
@@ -71,12 +95,32 @@ describe('Core Engine Tests', () => {
             expect(split['p2']).toBe(40);
         });
 
+        it('Fractional unit split (0.5 step)', () => {
+            const item: Item = {
+                id: 'i3', name: 'Roti', price: 60, quantity: 3, splitMode: 'UNIT',
+                consumption: { p1: 1.5, p2: 1.5 } // Total 3 === quantity. Cost/unit = 20.
+            };
+            const split = calculateItemSplit(item);
+            expect(split['p1']).toBe(30); // 1.5 * 20
+            expect(split['p2']).toBe(30); // 1.5 * 20
+        });
+
+        it('Mixed integer + fractional unit split', () => {
+            const item: Item = {
+                id: 'i4', name: 'Naan', price: 100, quantity: 4, splitMode: 'UNIT',
+                consumption: { p1: 2.5, p2: 1.5 } // Total 4 === quantity. Cost/unit = 25.
+            };
+            const split = calculateItemSplit(item);
+            expect(split['p1']).toBe(62.5); // 2.5 * 25
+            expect(split['p2']).toBe(37.5); // 1.5 * 25
+        });
+
         it('Mixed items', () => {
             const bill: BillState = {
                 participants,
                 items: [
                     { id: 'i1', name: 'Paneer', price: 300, quantity: 1, splitMode: 'EQUAL', consumption: { p1: true, p2: true } }, // 150 each
-                    { id: 'i2', name: 'Roti', price: 100, quantity: 1, splitMode: 'UNIT', consumption: { p1: 4, p2: 1 } } // 20/unit. p1=80, p2=20
+                    { id: 'i2', name: 'Roti', price: 100, quantity: 5, splitMode: 'UNIT', consumption: { p1: 4, p2: 1 } } // 20/unit. p1=80, p2=20
                 ],
                 discount: 0,
                 tax: 0
@@ -116,7 +160,7 @@ describe('Core Engine Tests', () => {
             item = { ...item, splitMode: 'UNIT', consumption: { p1: true } }; // Invalid Type for UNIT
             expect(validateItem(item)).toBe(false);
 
-            item = { ...item, splitMode: 'UNIT', consumption: { p1: 2, p2: 2 } }; // Valid UNIT. 25/unit.
+            item = { ...item, splitMode: 'UNIT', quantity: 4, consumption: { p1: 2, p2: 2 } }; // Valid UNIT. 25/unit.
             split = calculateItemSplit(item);
             expect(split['p1']).toBe(50);
             expect(split['p2']).toBe(50);
@@ -138,9 +182,9 @@ describe('Core Engine Tests', () => {
                 discount: 10,
                 tax: 0
             };
-            // Total 100. Share 50 each. Discount 10 -> 5 each. Final 45.
+            // Total 100. Share 50 each. Proportional discount logic: Each has 50% of the flat 100 total.
+            // 50% of 10 discount is 5. So each gets 5 discount -> Final 45.
             const finals = calculateBillSplit(bill);
-            console.log('Discount Test Result:', JSON.stringify(finals));
             expect(finals['p1']).toBe(45);
             expect(finals['p2']).toBe(45);
         });
@@ -154,7 +198,7 @@ describe('Core Engine Tests', () => {
                 discount: 120,
                 tax: 0
             };
-            // Total 100. Share 50 each. Discount 120 -> 60 each. Final -10.
+            // Total 100. Share 50 each. Proportional discount: 50% of 120 is 60. Share 50 - 60 = -10.
             const finals = calculateBillSplit(bill);
             expect(finals['p1']).toBe(-10);
             expect(finals['p2']).toBe(-10);
@@ -176,7 +220,7 @@ describe('Core Engine Tests', () => {
                 discount: 0,
                 tax: 10
             };
-            // Total 100. Share 50 each. Tax 10 -> +5 each. Final 55.
+            // Total 100. Share 50 each. Proportional tax: 50% of 10 is 5. Final 55.
             const finals = calculateBillSplit(bill);
             expect(finals['p1']).toBe(55);
             expect(finals['p2']).toBe(55);
@@ -191,7 +235,7 @@ describe('Core Engine Tests', () => {
                 discount: 20,
                 tax: 10
             };
-            // Base 50. Discount -10 -> 40. Tax +5 -> 45.
+            // Total 100. Share 50 each. Proportional Math Base 50. Discount -10 -> 40. Tax +5 -> 45.
             const finals = calculateBillSplit(bill);
             expect(finals['p1']).toBe(45);
             expect(finals['p2']).toBe(45);

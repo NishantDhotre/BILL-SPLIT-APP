@@ -38,6 +38,9 @@
   --color-m3-outline: var(--sys-outline);
   --color-m3-outline-variant: var(--sys-outline-variant);
 
+  --color-m3-inverse-surface: var(--sys-inverse-surface);
+  --color-m3-inverse-on-surface: var(--sys-inverse-on-surface);
+
   /* Box Shadows */
   --shadow-elevation-1: var(--sys-shadow-1);
   --shadow-elevation-2: var(--sys-shadow-2);
@@ -79,6 +82,9 @@
 
   --sys-outline: #cbd5e1;
   --sys-outline-variant: #e2e8f0;
+
+  --sys-inverse-surface: #1e293b;
+  --sys-inverse-on-surface: #f1f5f9;
 
   /* Neumorphic Shadows Light */
   --sys-shadow-1: 5px 5px 10px #e2e8f0, -5px -5px 10px #ffffff;
@@ -128,6 +134,9 @@
 
     --sys-outline: #404040;
     --sys-outline-variant: #333333;
+
+    --sys-inverse-surface: #f1f5f9;
+    --sys-inverse-on-surface: #1e293b;
 
     /* Neumorphic Shadows Dark (glow edges + deep shadows) */
     --sys-shadow-1: 4px 4px 8px #111111, -4px -4px 8px #2d2d2d;

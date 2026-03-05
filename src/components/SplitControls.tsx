@@ -45,12 +45,13 @@ export const UnitControl: React.FC<UnitControlProps> = ({ value, onChange }) => 
         <input
             type="number"
             min="0"
-            step="1"
+            step="0.5"
             value={value === 0 ? '' : value}
             placeholder="0"
             onChange={(e) => {
-                const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10);
-                if (!isNaN(val) && val >= 0) onChange(val);
+                const val = e.target.value === '' ? 0 : parseFloat(e.target.value);
+                // Allow only multiples of 0.5 (0, 0.5, 1, 1.5, 2, ...)
+                if (!isNaN(val) && val >= 0 && (val * 2) % 1 === 0) onChange(val);
             }}
             className={`
         w-16 h-10 px-2 text-center text-sm font-bold rounded-xl border-2 outline-none transition-all

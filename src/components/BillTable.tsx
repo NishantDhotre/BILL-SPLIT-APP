@@ -63,7 +63,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                 <table className="w-full text-left border-collapse">
                     <thead>
                         <tr className="bg-m3-surface-variant border-b border-m3-outline-variant">
-                            <th className="py-4 px-6 font-bold text-m3-on-surface-variant text-sm">Item</th>
+                            <th className="py-4 px-6 font-bold text-m3-on-surface-variant text-sm min-w-[180px]">Item</th>
                             <th className="py-4 px-2 font-bold text-m3-on-surface-variant text-sm w-16">Qty</th>
                             <th className="py-4 px-6 font-bold text-m3-on-surface-variant text-sm w-24">Price</th>
                             <th className="py-4 px-6 font-bold text-m3-on-surface-variant text-sm w-32">Mode</th>
@@ -85,20 +85,20 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                 else {
                                     const totalUsed = Object.values(item.consumption).reduce((acc: number, val) =>
                                         acc + (typeof val === 'number' ? val : 0), 0);
-                                    if (totalUsed > currentQty) errorMsg = `Exceeds Qty (${totalUsed}/${currentQty})`;
-                                    else if (totalUsed < 1) errorMsg = 'Assign ≥ 1';
-                                    else errorMsg = 'Invalid';
+                                    if (totalUsed < 1) errorMsg = 'Assign ≥ 1 unit';
+                                    else if (totalUsed !== currentQty) errorMsg = `Need ${currentQty} (have ${totalUsed})`;
+                                    else errorMsg = 'Invalid values';
                                 }
                             }
 
                             return (
                                 <tr key={item.id} className={`group transition-colors hover:bg-m3-surface-variant/50 ${!isValid ? 'bg-m3-error-container/20' : ''}`}>
-                                    <td className="py-3 px-6">
+                                    <td className="py-3 px-6 min-w-[180px]">
                                         <input
                                             type="text"
                                             value={item.name}
                                             onChange={(e) => onUpdateItem(item.id, { name: e.target.value })}
-                                            className="bg-transparent font-medium text-m3-on-surface placeholder-m3-on-surface-variant/50 focus:outline-none w-full"
+                                            className="bg-transparent font-semibold text-m3-on-surface placeholder-m3-on-surface-variant/70 focus:outline-none w-full border-b border-transparent hover:border-m3-outline focus:border-m3-primary transition-colors py-1"
                                             placeholder="Item name"
                                         />
                                         {!isValid && <div className="text-[10px] text-m3-error font-bold mt-1">{errorMsg}</div>}
@@ -183,7 +183,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                     type="text"
                                     value={item.name}
                                     onChange={(e) => onUpdateItem(item.id, { name: e.target.value })}
-                                    className="flex-1 bg-transparent font-bold text-m3-on-surface placeholder-m3-on-surface-variant/50 focus:outline-none min-w-0"
+                                    className="flex-1 bg-transparent font-bold text-m3-on-surface text-base placeholder-m3-on-surface-variant/70 focus:outline-none min-w-0 border-b border-transparent focus:border-m3-primary transition-colors py-1"
                                     placeholder="Item Name"
                                 />
                                 <div className="flex items-center bg-m3-surface-variant px-2 py-1 rounded-lg border border-m3-outline-variant shrink-0">

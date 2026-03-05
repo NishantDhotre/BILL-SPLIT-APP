@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import type { BillState, Item, SavedBill } from '../types';
+import type { BillState, Item, SavedBill, UserProfile } from '../types';
 import { calculateBillSplit, validateItem } from '../utils/calculations';
 import { uploadBillService } from '../services/billService';
 
@@ -41,60 +41,124 @@ interface BillStoreState {
     loadBill: (id: string) => void;
     deleteSavedBill: (id: string) => void;
     clearCurrentBill: () => void;
+
+    // Profile
+    userProfile: UserProfile;
+    isProfileSetup: boolean;
+    setUserProfile: (profile: UserProfile) => void;
 }
 
-const INITIAL_BILL: BillState = {
-    participants: [
-        { id: 'p1', name: 'Alice' },
-        { id: 'p2', name: 'Bob' },
-    ],
-    items: [
-        {
-            id: '1',
-            name: 'Start by adding an item',
-            price: 0,
-            quantity: 1,
-            splitMode: 'EQUAL',
-            consumption: {}
-        }
-    ],
-    discount: 0,
-    tax: 0
+// Safe abstraction for localStorage to avoid SSR / testing environments crashing in Node
+const safeStorage = {
+    getItem: (key: string) => typeof window !== 'undefined' ? window.localStorage?.getItem(key) : null,
+    setItem: (key: string, value: string) => typeof window !== 'undefined' && window.localStorage?.setItem(key, value),
+    removeItem: (key: string) => typeof window !== 'undefined' && window.localStorage?.removeItem(key),
 };
+
+const getInitialBill = (profileName?: string): BillState => {
+    const participants = profileName
+        ? [{ id: 'p-self', name: profileName }]
+        : [];
+    return {
+        participants,
+        items: [
+            {
+                id: '1',
+                name: 'Start by adding an item',
+                price: 0,
+                quantity: 1,
+                splitMode: 'EQUAL',
+                consumption: {}
+            }
+        ],
+        discount: 0,
+        tax: 0
+    };
+};
+
+const loadUserProfile = (): UserProfile => {
+    const saved = safeStorage.getItem('user_profile');
+    if (saved) {
+        try { return JSON.parse(saved); } catch { /* fall through */ }
+    }
+    return { name: '', importPreference: 'both' };
+};
+
+const INITIAL_PROFILE = loadUserProfile();
+const INITIAL_BILL = getInitialBill(INITIAL_PROFILE.name);
 
 export const useBillStore = create<BillStoreState>((set, get) => ({
     bill: INITIAL_BILL,
     splitResults: calculateBillSplit(INITIAL_BILL),
     isValid: true,
 
+    // Profile
+    userProfile: INITIAL_PROFILE,
+    isProfileSetup: !!INITIAL_PROFILE.name,
+    setUserProfile: (profile: UserProfile) => {
+        safeStorage.setItem('user_profile', JSON.stringify(profile));
+        set((state) => {
+            const updates: Partial<BillStoreState> = {
+                userProfile: profile,
+                isProfileSetup: !!profile.name,
+            };
+
+            // Add or update the user as a participant in the current bill
+            if (profile.name) {
+                const existingSelf = state.bill.participants.find(p => p.id === 'p-self');
+                let newParticipants = state.bill.participants;
+
+                if (existingSelf) {
+                    // Update name if it changed
+                    if (existingSelf.name !== profile.name) {
+                        newParticipants = state.bill.participants.map(p =>
+                            p.id === 'p-self' ? { ...p, name: profile.name } : p
+                        );
+                    }
+                } else {
+                    // Add the user as a new participant
+                    newParticipants = [{ id: 'p-self', name: profile.name }, ...state.bill.participants];
+                }
+
+                const newBill = { ...state.bill, participants: newParticipants };
+                updates.bill = newBill;
+                updates.splitResults = calculateBillSplit(newBill);
+                updates.isValid = newBill.items.every(validateItem);
+            }
+
+            return updates;
+        });
+    },
+
     // Phase 3: Upload Logic Init
     isUploading: false,
     uploadError: null,
 
     // Phase 13: BYOK Init
-    userApiKey: localStorage.getItem('user_gemini_api_key') || null,
+    userApiKey: safeStorage.getItem('user_gemini_api_key') || null,
     setUserApiKey: (key: string) => {
         if (key) {
-            localStorage.setItem('user_gemini_api_key', key);
+            safeStorage.setItem('user_gemini_api_key', key);
+            set({ userApiKey: key });
         } else {
-            localStorage.removeItem('user_gemini_api_key');
+            safeStorage.removeItem('user_gemini_api_key');
+            set({ userApiKey: null });
         }
-        set({ userApiKey: key || null });
     },
 
     // Phase 15: UPI Init
-    isUpiEnabled: localStorage.getItem('user_upi_enabled') === 'true',
-    upiId: localStorage.getItem('user_upi_id') || '',
-    upiName: localStorage.getItem('user_upi_name') || '',
+    isUpiEnabled: safeStorage.getItem('user_upi_enabled') === 'true',
+    upiId: safeStorage.getItem('user_upi_id') || '',
+    upiName: safeStorage.getItem('user_upi_name') || '',
     setUpiConfig: (enabled: boolean, id: string, name: string) => {
-        localStorage.setItem('user_upi_enabled', String(enabled));
-        localStorage.setItem('user_upi_id', id);
-        localStorage.setItem('user_upi_name', name);
+        safeStorage.setItem('user_upi_enabled', String(enabled));
+        safeStorage.setItem('user_upi_id', id);
+        safeStorage.setItem('user_upi_name', name);
         set({ isUpiEnabled: enabled, upiId: id, upiName: name });
     },
 
     // Phase 16: History Init
-    savedBills: JSON.parse(localStorage.getItem('saved_bills_history') || '[]'),
+    savedBills: JSON.parse(safeStorage.getItem('saved_bills_history') || '[]'),
 
     saveCurrentBill: () => {
         set((state) => {
@@ -104,7 +168,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                 createdAt: Date.now()
             };
             const updatedHistory = [newBill, ...state.savedBills];
-            localStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
+            safeStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
             return { savedBills: updatedHistory };
         });
     },
@@ -131,15 +195,16 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
     deleteSavedBill: (id: string) => {
         set((state) => {
             const updatedHistory = state.savedBills.filter(b => b.id !== id);
-            localStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
+            safeStorage.setItem('saved_bills_history', JSON.stringify(updatedHistory));
             return { savedBills: updatedHistory };
         });
     },
 
     clearCurrentBill: () => {
+        const freshBill = getInitialBill(get().userProfile.name);
         set({
-            bill: INITIAL_BILL,
-            splitResults: calculateBillSplit(INITIAL_BILL),
+            bill: freshBill,
+            splitResults: calculateBillSplit(freshBill),
             isValid: true,
             uploadError: null
         });

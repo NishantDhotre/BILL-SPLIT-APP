@@ -37,3 +37,10 @@ export interface SavedBill extends BillState {
     id: string;
     createdAt: number;
 }
+
+export type ImportPreference = 'ai' | 'json' | 'both';
+
+export interface UserProfile {
+    name: string;
+    importPreference: ImportPreference;
+}
