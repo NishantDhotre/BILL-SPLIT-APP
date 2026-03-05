@@ -1,0 +1,31 @@
+
+[1m[46m RUN [49m[22m [36mv4.0.16 [39m[90mD:/projects-self-all/BILL SPLIT APP[39m
+
+ [32m✓[39m src/utils/calculations.test.ts [2m([22m[2m14 tests[22m[2m)[22m[32m 24[2mms[22m[39m
+
+[31m⎯⎯⎯⎯⎯⎯[39m[1m[41m Failed Suites 1 [49m[22m[31m⎯⎯⎯⎯⎯⎯⎯[39m
+
+[41m[1m FAIL [22m[49m src/store/useBillStore.test.ts[2m [ src/store/useBillStore.test.ts ][22m
+[31m[1mReferenceError[22m: localStorage is not defined[39m
+[36m [2m❯[22m src/store/useBillStore.ts:[2m75:17[22m[39m
+    [90m 73| [39m
+    [90m 74| [39m    [90m// Phase 13: BYOK Init[39m
+    [90m 75| [39m    userApiKey[33m:[39m localStorage[33m.[39m[34mgetItem[39m([32m'user_gemini_api_key'[39m) [33m||[39m [35mnull[39m[33m,[39m
+    [90m   | [39m                [31m^[39m
+    [90m 76| [39m    setUserApiKey[33m:[39m (key[33m:[39m string) [33m=>[39m {
+    [90m 77| [39m        [35mif[39m (key) {
+[90m [2m❯[22m createStoreImpl ../BILL%20SPLIT%20APP/node_modules/zustand/esm/vanilla.mjs:[2m19:32[22m[39m
+[90m [2m❯[22m createStore ../BILL%20SPLIT%20APP/node_modules/zustand/esm/vanilla.mjs:[2m22:53[22m[39m
+[90m [2m❯[22m createImpl ../BILL%20SPLIT%20APP/node_modules/zustand/esm/react.mjs:[2m15:15[22m[39m
+[90m [2m❯[22m create ../BILL%20SPLIT%20APP/node_modules/zustand/esm/react.mjs:[2m20:48[22m[39m
+[90m [2m❯[22m src/store/useBillStore.ts:[2m65:29[22m[39m
+[90m [2m❯[22m src/store/useBillStore.test.ts:[2m2:1[22m[39m
+
+[31m[2m⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯[22m[39m
+
+
+[2m Test Files [22m [1m[31m1 failed[39m[22m[2m | [22m[1m[32m1 passed[39m[22m[90m (2)[39m
+[2m      Tests [22m [1m[32m14 passed[39m[22m[90m (14)[39m
+[2m   Start at [22m 20:26:05
+[2m   Duration [22m 1.21s[2m (transform 496ms, setup 0ms, import 339ms, tests 24ms, environment 1ms)[22m
+

@@ -1,0 +1,5 @@
+
+[1m[44m DEV [49m[22m [34mv4.0.16 [39m[90mD:/projects-self-all/BILL SPLIT APP[39m
+
+[31mNo test files found. You can change the file name pattern by pressing "p"
+[39m
