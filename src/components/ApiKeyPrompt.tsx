@@ -1,5 +1,6 @@
 import React from 'react';
 import { useBillStore } from '../store/useBillStore';
+import { ClipboardIcon } from './Icons';
 
 interface ApiKeyPromptProps {
     isOpen: boolean;
@@ -100,7 +101,7 @@ export const ApiKeyPrompt: React.FC<ApiKeyPromptProps> = ({ isOpen, onClose }) =
                         onClick={handleSwitchToJson}
                         className="w-full py-3 border border-m3-outline text-m3-on-surface font-semibold rounded-xl hover:bg-m3-surface-variant transition-colors text-sm"
                     >
-                        📋 Switch to JSON Import instead
+                        <ClipboardIcon className="w-5 h-5 inline mr-1" /> Switch to JSON Import instead
                     </button>
                 </div>
             </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { Participant } from '../types';
 import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { UsersIcon } from './Icons';
 
 interface ParticipantManagementProps {
     participants: Participant[];
@@ -25,7 +26,7 @@ export const ParticipantManagement: React.FC<ParticipantManagementProps> = ({
     return (
         <div className="p-6 bg-m3-surface rounded-2xl shadow-elevation-1 border border-m3-outline-variant">
             <h2 className="text-lg font-bold text-m3-on-surface mb-4 flex items-center gap-2">
-                <span>👥</span> Participants
+                <UsersIcon className="w-5 h-5" /> Participants
             </h2>
 
             <div className="flex flex-wrap gap-2 mb-4">

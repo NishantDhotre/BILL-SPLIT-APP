@@ -179,6 +179,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             if (!billToLoad) return state;
 
             // We strip out the id and createdAt when loading into active state
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
             const { id: _id, createdAt, ...billData } = billToLoad;
 
             const allValid = billData.items.every(validateItem);
@@ -238,6 +239,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
         set((state) => {
             const newParticipants = state.bill.participants.filter(p => p.id !== id);
             const newItems = state.bill.items.map(item => {
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
                 const { [id]: _, ...rest } = item.consumption;
                 return { ...item, consumption: rest as Record<string, boolean | number> };
             });
@@ -359,15 +361,15 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                 };
             });
             get().setBill(get().bill);
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error(error);
-            let msg = error.message || "Failed to analyze bill";
+            let msg = error instanceof Error ? error.message : "Failed to analyze bill";
 
             // Friendly message for Quota Exceeded
             if (msg.includes("429") || msg.includes("Quota exceeded")) {
-                msg = `⏳ AI Usage Limit Reached (Free Tier). \nDetails: ${msg}`;
+                msg = `AI Usage Limit Reached (Free Tier). \nDetails: ${msg}`;
             } else if (msg.includes("404")) {
-                msg = `❌ AI Model Not Found. \nDetails: ${msg}`;
+                msg = `AI Model Not Found. \nDetails: ${msg}`;
             }
 
             set({ uploadError: msg });
@@ -388,7 +390,7 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
             }
 
             set((state) => {
-                const newItems: Item[] = parsedData.items.map((p: any) => {
+                const newItems: Item[] = parsedData.items.map((p: Record<string, unknown>) => {
                     const consumption: Record<string, boolean | number> = {};
 
                     if (p.splitMode === 'EQUAL') {
@@ -399,10 +401,10 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
 
                     return {
                         id: `i-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
-                        name: p.name,
-                        price: p.price,
-                        quantity: p.quantity || 1,
-                        splitMode: p.splitMode || 'EQUAL',
+                        name: (p.name as string) || 'Unnamed Item',
+                        price: (p.price as number) || 0,
+                        quantity: (p.quantity as number) || 1,
+                        splitMode: (p.splitMode as 'EQUAL' | 'UNIT') || 'EQUAL',
                         consumption
                     };
                 });
@@ -424,9 +426,10 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
                 };
             });
             get().setBill(get().bill); // Trigger recalc
-        } catch (error: any) {
+        } catch (error: unknown) {
             console.error("Import Failed:", error);
-            throw new Error(`Failed to parse JSON: ${error.message}`);
+            const msg = error instanceof Error ? error.message : String(error);
+            throw new Error(`Failed to parse JSON: ${msg}`);
         }
     }
 }));

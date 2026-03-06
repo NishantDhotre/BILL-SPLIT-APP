@@ -8,9 +8,9 @@ interface ProfileModalProps {
 }
 
 const IMPORT_OPTIONS: { value: ImportPreference; label: string; desc: string }[] = [
-    { value: 'ai', label: '📷 AI Scan', desc: 'Upload or photograph receipts' },
-    { value: 'json', label: '📋 JSON Import', desc: 'Paste bill data as JSON' },
-    { value: 'both', label: '✨ Both', desc: 'Show all import options' },
+    { value: 'ai', label: 'AI Scan', desc: 'Upload or photograph receipts' },
+    { value: 'json', label: 'JSON Import', desc: 'Paste bill data as JSON' },
+    { value: 'both', label: 'Both', desc: 'Show all import options' },
 ];
 
 export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) => {
@@ -69,7 +69,7 @@ export const ProfileModal: React.FC<ProfileModalProps> = ({ isOpen, onClose }) =
                 <div className="bg-m3-primary p-5 rounded-t-2xl shrink-0">
                     <div className="flex items-center gap-3">
                         <div className="h-12 w-12 rounded-full bg-white/20 flex items-center justify-center text-2xl font-bold text-white">
-                            {tempName ? tempName.charAt(0).toUpperCase() : '👤'}
+                            {tempName ? tempName.charAt(0).toUpperCase() : 'U'}
                         </div>
                         <div>
                             <h2 className="text-xl font-bold text-m3-on-primary">Your Profile</h2>

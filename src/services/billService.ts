@@ -91,7 +91,7 @@ const fileToGenerativePart = async (file: File) => {
 
 export const uploadBillService = async (file: File, userApiKey?: string | null): Promise<ParsedBill> => {
     if (!userApiKey) {
-        console.error("❌ No Gemini API Key provided.");
+        console.error("No Gemini API Key provided.");
         throw new Error("Missing Gemini API Key. Please set it in Settings.");
     }
 
@@ -121,7 +121,7 @@ export const uploadBillService = async (file: File, userApiKey?: string | null):
 
         return parsed;
 
-    } catch (error) {
+    } catch (error: unknown) {
         console.error("Gemini Analysis Failed:", error);
         throw error;
     }

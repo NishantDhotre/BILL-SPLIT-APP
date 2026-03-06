@@ -203,10 +203,10 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                             </div>
 
                             {/* Row 2: Controls & Participants */}
-                            <div className="flex items-center gap-2 h-10">
+                            <div className="flex items-center gap-2 mt-1">
                                 {/* Qty */}
-                                <div className="relative shrink-0 w-10">
-                                    <span className="absolute -top-2 left-0 text-[8px] text-m3-on-surface-variant font-bold uppercase">Qty</span>
+                                <div className="relative shrink-0 w-12">
+                                    <span className="absolute -top-3 left-1 text-[9px] text-m3-on-surface-variant font-bold uppercase bg-m3-surface px-1">Qty</span>
                                     <input
                                         type="number"
                                         inputMode="numeric"
@@ -228,7 +228,7 @@ export const BillTable: React.FC<BillTableProps> = React.memo(({
                                             ? 'bg-m3-primary-container text-m3-on-primary-container border-m3-primary-container'
                                             : 'bg-m3-tertiary-container text-m3-on-tertiary-container border-m3-tertiary-container'}`}
                                 >
-                                    {item.splitMode.substring(0, 1)}
+                                    {item.splitMode}
                                 </button>
 
                                 {/* Scrollable Participants */}

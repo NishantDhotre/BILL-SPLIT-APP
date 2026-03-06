@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { CheckIcon, ClipboardIcon, WarningIcon } from './Icons';
 import { useBillStore } from '../store/useBillStore';
 import { BILL_ANALYSIS_PROMPT } from '../services/billService';
 import { MOCK_BILL } from '../utils/mockBill';
@@ -29,8 +30,9 @@ export const ManualImportModal: React.FC<ManualImportModalProps> = ({ isOpen, on
             importBillJSON(jsonInput);
             onClose();
             setJsonInput('');
-        } catch (err: any) {
-            setError(err.message || 'Invalid JSON format');
+        } catch (err: unknown) {
+            const msg = err instanceof Error ? err.message : 'Invalid JSON format';
+            setError(msg);
         }
     };
 
@@ -91,7 +93,7 @@ export const ManualImportModal: React.FC<ManualImportModalProps> = ({ isOpen, on
                                     onClick={handleCopyPrompt}
                                     className="absolute top-2 right-2 px-3 py-1 bg-m3-primary-container text-m3-on-primary-container text-xs font-bold rounded-lg shadow hover:opacity-90 transition-all"
                                 >
-                                    {copySuccess ? '✅ Copied!' : '📋 Copy Prompt'}
+                                    {copySuccess ? <><CheckIcon className="w-4 h-4 inline" /> Copied!</> : <><ClipboardIcon className="w-4 h-4 inline" /> Copy Prompt</>}
                                 </button>
                             </div>
 
@@ -115,7 +117,7 @@ export const ManualImportModal: React.FC<ManualImportModalProps> = ({ isOpen, on
 
                             {error && (
                                 <div className="text-m3-on-error-container text-sm font-semibold p-2 bg-m3-error-container rounded-lg">
-                                    ⚠️ {error}
+                                    <WarningIcon className="w-4 h-4 inline shrink-0" /> {error}
                                 </div>
                             )}
 
@@ -132,7 +134,7 @@ export const ManualImportModal: React.FC<ManualImportModalProps> = ({ isOpen, on
                                     disabled={!jsonInput.trim()}
                                     className="px-6 py-2 bg-m3-primary text-m3-on-primary font-bold rounded-xl hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
                                 >
-                                    🚀 Import Bill
+                                    <><CheckIcon className="w-5 h-5 inline mr-1" /> Import Bill</>
                                 </button>
                             </div>
                         </div>

@@ -77,10 +77,11 @@ export const UploadBill: React.FC<UploadBillProps> = ({ onMissingKey }) => {
                 });
                 await processFile(file);
             }
-        } catch (e: any) {
+        } catch (e: unknown) {
             // User cancelled or plugin not available on web
             // Note: Capacitor throws 'User cancelled photos app' string error on cancel
-            if (e.message && !e.message.toLowerCase().includes('cancel')) {
+            const msg = e instanceof Error ? e.message : String(e);
+            if (msg && !msg.toLowerCase().includes('cancel')) {
                 // Fallback to standard input if Camera plugin fails entirely (like on web without PWA elements)
                 fileInputRef.current?.click();
             }

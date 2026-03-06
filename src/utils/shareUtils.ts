@@ -77,7 +77,7 @@ export const shareImage = async (blob: Blob, fileName: string, title: string) =>
             // Share the file URI
             await Share.share({
                 title: title,
-                text: 'Here is the bill split receipt! 🧾',
+                text: 'Here is the bill split receipt!',
                 files: [savedFile.uri],
             });
             return true;
@@ -92,13 +92,13 @@ export const shareImage = async (blob: Blob, fileName: string, title: string) =>
             const file = new File([blob], fileName, { type: blob.type });
             await navigator.share({
                 title: title,
-                text: 'Here is the bill split receipt! 🧾',
+                text: 'Here is the bill split receipt!',
                 files: [file],
             });
             return true;
         }
     } catch (error) {
-        if ((error as any).message !== 'Share canceled') {
+        if (error instanceof Error && error.message !== 'Share canceled') {
             console.error('Share failed:', error);
         }
     }

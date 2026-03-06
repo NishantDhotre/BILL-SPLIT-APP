@@ -47,6 +47,7 @@ export function dispatchActions(state: BillState, actions: Action[]): BillState 
                         ...newState,
                         participants: newState.participants.filter(p => p.id !== pid),
                         items: newState.items.map(item => {
+                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
                             const { [pid]: _, ...rest } = item.consumption;
                             return { ...item, consumption: rest };
                         })

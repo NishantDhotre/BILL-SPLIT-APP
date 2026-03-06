@@ -1,4 +1,5 @@
 import React from 'react';
+import { WarningIcon, ErrorIcon, ClipboardIcon, CameraIcon } from './Icons';
 import { useBillStore } from '../store/useBillStore';
 import { ParticipantManagement } from './ParticipantManagement';
 import { BillTable } from './BillTable';
@@ -141,7 +142,7 @@ export const Dashboard: React.FC = () => {
                             className="flex items-center gap-2 px-4 py-2 rounded-full bg-m3-surface-variant text-m3-on-surface-variant hover:bg-m3-outline hover:text-m3-primary transition-all text-sm font-semibold"
                         >
                             <div className="h-6 w-6 rounded-full bg-m3-primary text-m3-on-primary flex items-center justify-center text-xs font-bold">
-                                {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : '👤'}
+                                {userProfile.name ? userProfile.name.charAt(0).toUpperCase() : 'U'}
                             </div>
                             <span className="hidden sm:inline">{userProfile.name || 'Profile'}</span>
                         </button>
@@ -152,7 +153,7 @@ export const Dashboard: React.FC = () => {
                 {
                     !isValid && (
                         <div className="bg-m3-error-container text-m3-on-error-container rounded-xl p-4 flex items-start gap-3 shadow-sm">
-                            <span className="text-xl">⚠️</span>
+                            <WarningIcon className="w-6 h-6 shrink-0" />
                             <div>
                                 <p className="font-bold">Check Split Configuration</p>
                                 <p className="text-sm opacity-90">Some items have invalid split percentages or units.</p>
@@ -165,7 +166,7 @@ export const Dashboard: React.FC = () => {
                 {
                     uploadError && (
                         <div className="bg-m3-tertiary-container text-m3-on-tertiary-container border border-m3-tertiary rounded-xl p-4 flex items-start gap-3 shadow-sm">
-                            <span className="text-xl">🛑</span>
+                            <ErrorIcon className="w-6 h-6 shrink-0" />
                             <div>
                                 <p className="font-bold">Upload Failed</p>
                                 <p className="text-sm opacity-90">{uploadError}</p>
@@ -364,7 +365,7 @@ export const Dashboard: React.FC = () => {
                             try {
                                 await window.navigator.clipboard.writeText(text);
                                 alert('Copied to clipboard! You can paste in WhatsApp now.');
-                            } catch (err) {
+                            } catch (err: unknown) {
                                 console.error('Failed to copy text: ', err);
                                 alert('Failed to copy. Try sharing the image receipt instead.');
                             }
@@ -439,8 +440,8 @@ export const Dashboard: React.FC = () => {
                                                 {/* Action Buttons */}
                                                 <div className="p-3 flex gap-2 border-t border-m3-outline-variant bg-m3-surface">
                                                     <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3 bg-m3-surface-variant hover:opacity-80 text-m3-on-surface-variant font-bold rounded-xl text-xs sm:text-sm transition-all border border-m3-outline-variant">Close</button>
-                                                    <button onClick={copyToClipboard} className="flex-1 py-3 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl text-xs sm:text-sm transition-all flex justify-center items-center gap-1 border border-m3-outline-variant"><span className="hidden sm:inline">📋</span> Copy</button>
-                                                    <button onClick={shareImageAction} className="flex-1 py-3 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-all flex justify-center items-center gap-1"><span className="hidden sm:inline">📸</span> Share</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl text-xs sm:text-sm transition-all flex justify-center items-center gap-1 border border-m3-outline-variant"><ClipboardIcon className="w-4 h-4" /> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm text-xs sm:text-sm transition-all flex justify-center items-center gap-1"><CameraIcon className="w-4 h-4" /> Share</button>
                                                 </div>
                                             </div>
                                         </div>
@@ -476,8 +477,8 @@ export const Dashboard: React.FC = () => {
                                                 {/* Action Buttons */}
                                                 <div className="p-4 flex gap-3 bg-m3-surface border-t border-m3-outline-variant">
                                                     <button onClick={() => setViewingParticipant(null)} className="flex-1 py-3.5 bg-m3-surface-variant hover:opacity-80 text-m3-on-surface-variant font-bold rounded-xl transition-all border border-m3-outline-variant">Close</button>
-                                                    <button onClick={copyToClipboard} className="flex-1 py-3.5 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl transition-all flex justify-center items-center gap-2 border border-m3-outline-variant"><span className="hidden sm:inline">📋</span> Copy</button>
-                                                    <button onClick={shareImageAction} className="flex-1 py-3.5 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm transition-all flex justify-center items-center gap-2"><span className="hidden sm:inline">📸</span> Share</button>
+                                                    <button onClick={copyToClipboard} className="flex-1 py-3.5 bg-m3-primary-container hover:opacity-80 text-m3-on-primary-container font-bold rounded-xl transition-all flex justify-center items-center gap-2 border border-m3-outline-variant"><ClipboardIcon className="w-4 h-4" /> Copy</button>
+                                                    <button onClick={shareImageAction} className="flex-1 py-3.5 bg-m3-primary hover:opacity-80 text-m3-on-primary font-bold rounded-xl shadow-sm transition-all flex justify-center items-center gap-2"><CameraIcon className="w-4 h-4" /> Share</button>
                                                 </div>
                                             </div>
                                         </div>
