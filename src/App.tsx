@@ -10,7 +10,7 @@ function App() {
         await StatusBar.setStyle({ style: Style.Light });
         await StatusBar.setBackgroundColor({ color: '#f8fafc' });
       } catch {
-        console.log('StatusBar not available (web mode)');
+        // StatusBar not available (e.g. web mode)
       }
     };
     configureStatusBar();

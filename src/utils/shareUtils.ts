@@ -8,18 +8,14 @@ export const captureReceipt = async (elementId: string): Promise<Blob | null> =>
         return null;
     }
 
-    console.log(`Attempting to capture element with ID: ${elementId}`);
     try {
-        console.log('Lazy loading html-to-image...');
         const { toPng } = await import('html-to-image');
 
-        console.log('Starting capture...');
         const dataUrl = await toPng(element, {
             backgroundColor: '#ffffff',
             pixelRatio: 2,
             cacheBust: true,
         });
-        console.log('Data URL created successfully.');
 
         // Convert Data URL to Blob
         const res = await fetch(dataUrl);
@@ -62,7 +58,6 @@ export const shareImage = async (blob: Blob, fileName: string, title: string) =>
     try {
         // 1. Native Mobile Sharing (Capacitor)
         if (Capacitor.isNativePlatform()) {
-            console.log('Native platform detected. preparing to share via Capacitor...');
             const base64Data = await blobToBase64(blob);
 
             // Write file to Cache directory
@@ -71,8 +66,6 @@ export const shareImage = async (blob: Blob, fileName: string, title: string) =>
                 data: base64Data,
                 directory: Directory.Cache,
             });
-
-            console.log('File saved to cache:', savedFile.uri);
 
             // Share the file URI
             await Share.share({
@@ -104,7 +97,6 @@ export const shareImage = async (blob: Blob, fileName: string, title: string) =>
     }
 
     // 3. Fallback: Download (Classic Web)
-    console.log('Falling back to download.');
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;

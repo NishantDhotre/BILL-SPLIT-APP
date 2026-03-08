@@ -53,9 +53,14 @@ export const Dashboard: React.FC = () => {
     const showJsonImport = importPref === 'json' || importPref === 'both';
 
     const handleSaveBill = async () => {
+        const hasNoPrice = bill.items.reduce((sum, item) => sum + item.price, 0) === 0;
+        if (hasNoPrice || bill.items.length === 0) {
+            alert('Cannot save an empty bill. Please add costs first.');
+            return;
+        }
         saveCurrentBill();
         await Haptics.impact({ style: ImpactStyle.Light });
-        // Optional: show a quick toast or feedback here
+        alert('Bill saved successfully to your History!');
     };
 
     const handleClearBill = async () => {
@@ -126,7 +131,11 @@ export const Dashboard: React.FC = () => {
                         </button>
                         <button
                             onClick={handleSaveBill}
-                            className="flex items-center gap-2 px-4 py-2 rounded-full border border-m3-outline text-m3-tertiary hover:bg-m3-tertiary-container transition-all text-sm font-semibold"
+                            disabled={subtotal === 0}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full border transition-all text-sm font-semibold
+                                ${subtotal === 0
+                                    ? 'bg-m3-surface-variant border-transparent text-m3-on-surface-variant cursor-not-allowed opacity-80'
+                                    : 'border-m3-outline text-m3-tertiary hover:bg-m3-tertiary-container'}`}
                         >
                             <span>Save Bill</span>
                         </button>

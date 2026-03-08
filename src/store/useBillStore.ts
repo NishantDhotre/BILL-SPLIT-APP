@@ -162,6 +162,11 @@ export const useBillStore = create<BillStoreState>((set, get) => ({
 
     saveCurrentBill: () => {
         set((state) => {
+            const totalAmount = state.bill.items.reduce((sum, item) => sum + item.price, 0);
+            if (totalAmount === 0 || state.bill.items.length === 0) {
+                return state; // Do not save empty bills
+            }
+
             const newBill: SavedBill = {
                 ...state.bill,
                 id: `b-${Date.now()}`,
